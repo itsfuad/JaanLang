@@ -1,13 +1,16 @@
 {
   "name": "jaan",
-  "version": "0.0.4",
+  "version": "0.0.11",
   "description": "A programming language for couples and romantic peoples.",
   "publisher": "JaanLang",
   "main": "main.js",
   "type": "module",
+  "bin": {
+    "jaan": "./bin/main.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "jaan": "node main.js"
+    "jaan": "node ./bin/main.js"
   },
   "categories": [
     "Programming Languages"

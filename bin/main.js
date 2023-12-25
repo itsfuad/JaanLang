@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { readFile } from 'fs';
 const _variableSet = new Set();
 function compile(code) {
