@@ -267,7 +267,6 @@ bye jaan
 `;
 function runCode(code) {
     const parsedCode = compile(code);
-    console.log(parsedCode);
     try {
         eval(parsedCode);
     }
@@ -286,7 +285,6 @@ readFile(filename, 'utf8', (err, data) => {
         console.log(`Error reading file from disk: ${err}`);
     }
     else {
-        console.log(`File contents:\n${data}`);
         runCode(data);
     }
 });

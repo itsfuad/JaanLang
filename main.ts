@@ -324,7 +324,6 @@ readFile(filename, 'utf8', (err, data) => {
     if (err) {
         console.log(`Error reading file from disk: ${err}`);
     } else {
-        console.log(`File contents:\n${data}`);
         runCode(data);
     }
 });
