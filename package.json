@@ -1,0 +1,21 @@
+{
+  "name": "jaanlang",
+  "version": "1.0.1",
+  "description": "A programming language for couples and romantic peoples.",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "JaanLang",
+    "Programming",
+    "Language"
+  ],
+  "author": "Fuad Hasan",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3"
+  }
+}

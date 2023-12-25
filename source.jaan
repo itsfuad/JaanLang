@@ -1,0 +1,42 @@
+hi jaan
+    # This is a comment
+    dhoro id holo 6
+    dhoro kichuEkta holo id
+    dhoro amrNaam holo "Rakib"
+    dhoro nasa holo 9
+    dhoro ass holo 'abb'
+
+    jodi kichuEkta <= 0 na hoy tahole
+        bolo "0 theke kom"
+    nahole jodi kichuEkta > 78 hoy tahole
+        bolo "0 theke beshi"
+    nahole
+        bolo "huh?"
+    kichu bolar nai
+
+
+    jodi kichuEkta 0 hoy tahole
+        bolo "0 hoyeche"
+    kichu bolar nai
+
+    jodi kichuEkta 0 na hoy tahole
+        bolo "0 hoy nai"
+    kichu bolar nai
+
+    jodi kichuEkta 15 theke beshi hoy tahole
+        bolo "0 theke beshi hoyeche"
+    kichu bolar nai
+
+    jodi kichuEkta 5 theke kom na hoy tahole
+        bolo "0 theke kom hoyeche"
+    kichu bolar nai
+
+    jodi kichuEkta 9 hoy tahole
+        bolo "9 hoyeche"
+    kichu bolar nai
+
+    10 bar
+        bolo "Sorry Jaan " + $
+    kichu bolar nai
+
+bye jaan
