@@ -276,7 +276,7 @@ function runCode(code) {
 }
 const filename = process.argv[2];
 if (!filename) {
-    console.log('Please provide a filename');
+    console.error('Error: No files specified');
     process.exit(1);
 }
 //read file
