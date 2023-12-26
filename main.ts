@@ -1,6 +1,15 @@
 #!/usr/bin/env node
 
 import { readFile, existsSync } from 'fs';
+import chalk from 'chalk';
+import { config } from 'dotenv';
+
+config();
+
+const log = console.log;
+
+//get version from package.json
+const version = process.env.npm_package_version || 'Development';
 
 const _variableSet = new Set<string>();
 
@@ -293,11 +302,8 @@ kichu bolar nai
 
 
 10 bar
+    # $ is the iteration count variable
     bolo "Sorry Jaan " + $
-kichu bolar nai
-
--2 bar
-    bolo "Kire"
 kichu bolar nai
 
 bye jaan
@@ -313,6 +319,67 @@ function runCode(code: string) {
     }
 }
 
+function howToUse(){
+    log(chalk.yellowBright('\nJaanLang\n'));
+    log(chalk.blueBright('Program must start with ') + chalk.greenBright('hi jaan') + chalk.blueBright(' keyword and end with ') + chalk.greenBright('bye jaan') + chalk.blueBright(' keyword.\n'));
+    log(chalk.blueBright('Declaring variable'));
+    log(chalk.greenBright('\tdhoro <variableName> holo <value>'));
+    log(chalk.blueBright('or'));
+    log(chalk.greenBright('\tdhoro <variableName>'));
+    log(chalk.blueBright('also you can assign value by = operator'));
+    log(chalk.greenBright('\tdhoro <variableName> = <value>\n'));
+    log(chalk.blueBright('Printing'));
+    log(chalk.greenBright('\tbolo <value>\n'));
+    log(chalk.blueBright('If statement'));
+    log(chalk.greenBright('\tjodi <expression> tahole'));
+    log(chalk.greenBright('\t\t<code>'));
+    log(chalk.greenBright('\tnahole'));
+    log(chalk.greenBright('\t\t<code>'));
+    log(chalk.greenBright('\tkichu bolar nai\n'));
+    log(chalk.blueBright('Else if statement'));
+    log(chalk.greenBright('\tnahole jodi <expression> tahole'));
+    log(chalk.greenBright('\t\t<code>'));
+    log(chalk.greenBright('\tnahole jodi <expression> tahole\n'));
+    log(chalk.blueBright('Range loop'));
+    log(chalk.greenBright('\t<number> bar'));
+    log(chalk.greenBright('\t\t<code>'));
+    log(chalk.greenBright('\tkichu bolar nai\n'));
+    log(chalk.blueBright('Comments'));
+    log(chalk.greenBright('\t# This is a comment\n'));
+    log(chalk.blueBright('Operators'));
+    log(chalk.greenBright('\tholo -> ='));
+    log(chalk.greenBright('\thoy -> =='));
+    log(chalk.greenBright('\tna hoy -> !='));
+    log(chalk.greenBright('\ttheke beshi -> >'));
+    log(chalk.greenBright('\ttheke kom -> <'));
+    log(chalk.greenBright('\ttheke beshi ba soman -> >='));
+}
+
+function showHelp(){
+    console.log('\nJaanLang\n');
+    console.log('\t--help | -h: show help');
+    console.log('\t--doc | -d: show documentation');
+    console.log('\t--version | -v: shows the compiler version\n');
+}
+
+for (const arg of process.argv){
+    if (arg.includes("--") || arg.includes("-")){
+        switch (arg){
+            case '--help':
+            case '-h':
+                showHelp();
+            break;
+            case '--doc':
+            case '-d':
+                howToUse();
+            case '--version':
+            case '-v':
+                console.log(`JaanLang v${version}`);
+
+        }
+        process.exit(0);
+    }
+}
 
 let filename = process.argv[2];
 

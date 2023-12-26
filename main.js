@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 import { readFile, existsSync } from 'fs';
+import chalk from 'chalk';
+import { config } from 'dotenv';
+config();
+const log = console.log;
+//get version from package.json
+const version = process.env.npm_package_version || 'Development';
 const _variableSet = new Set();
 function compile(code) {
     //remove starting and trailing spaces
@@ -273,6 +279,110 @@ function runCode(code) {
     }
     catch (e) {
         console.log(`Ki korso eita?? ${e}`);
+    }
+}
+function howToUse() {
+    //display the language syntax
+    /*console.log(`
+        \n
+        JaanLang
+
+        Program must start with 'hi jaan' keyword and end with 'bye jaan' keyword.
+
+        Declaring variable
+            dhoro <variableName> holo <value>
+            or
+            dhoro <variableName>
+            also you can assign value by = operator
+            dhoro <variableName> = <value>
+
+        Printing
+            bolo <value>
+
+        If statement
+            jodi <expression> tahole
+                <code>
+            nahole
+                <code>
+            kichu bolar nai
+
+        Else if statement
+            nahole jodi <expression> tahole
+                <code>
+            nahole jodi <expression> tahole
+
+        Range loop
+            <number> bar
+                <code>
+            kichu bolar nai
+
+        Comments
+            # This is a comment
+
+        Operators
+            holo -> =
+            hoy -> ==
+            na hoy -> !=
+            theke beshi -> >
+            theke kom -> <
+            theke beshi ba soman -> >=
+            theke kom ba soman -> <=
+    `);*/
+    log(chalk.yellowBright('\nJaanLang\n'));
+    log(chalk.blueBright('Program must start with ') + chalk.greenBright('hi jaan') + chalk.blueBright(' keyword and end with ') + chalk.greenBright('bye jaan') + chalk.blueBright(' keyword.\n'));
+    log(chalk.blueBright('Declaring variable'));
+    log(chalk.rgb(128, 0, 128), '\tdhoro <variableName> holo <value>');
+    log(chalk.blueBright('or'));
+    log(chalk.greenBright('\tdhoro <variableName>'));
+    log(chalk.blueBright('also you can assign value by = operator'));
+    log(chalk.greenBright('\tdhoro <variableName> = <value>\n'));
+    log(chalk.blueBright('Printing'));
+    log(chalk.greenBright('\tbolo <value>\n'));
+    log(chalk.blueBright('If statement'));
+    log(chalk.greenBright('\tjodi <expression> tahole'));
+    log(chalk.greenBright('\t\t<code>'));
+    log(chalk.greenBright('\tnahole'));
+    log(chalk.greenBright('\t\t<code>'));
+    log(chalk.greenBright('\tkichu bolar nai\n'));
+    log(chalk.blueBright('Else if statement'));
+    log(chalk.greenBright('\tnahole jodi <expression> tahole'));
+    log(chalk.greenBright('\t\t<code>'));
+    log(chalk.greenBright('\tnahole jodi <expression> tahole\n'));
+    log(chalk.blueBright('Range loop'));
+    log(chalk.greenBright('\t<number> bar'));
+    log(chalk.greenBright('\t\t<code>'));
+    log(chalk.greenBright('\tkichu bolar nai\n'));
+    log(chalk.blueBright('Comments'));
+    log(chalk.greenBright('\t# This is a comment\n'));
+    log(chalk.blueBright('Operators'));
+    log(chalk.greenBright('\tholo -> ='));
+    log(chalk.greenBright('\thoy -> =='));
+    log(chalk.greenBright('\tna hoy -> !='));
+    log(chalk.greenBright('\ttheke beshi -> >'));
+    log(chalk.greenBright('\ttheke kom -> <'));
+    log(chalk.greenBright('\ttheke beshi ba soman -> >='));
+}
+function showHelp() {
+    console.log('\nJaanLang\n');
+    console.log('\t--help | -h: show help');
+    console.log('\t--doc | -d: show documentation');
+    console.log('\t--version | -v: shows the compiler version\n');
+}
+for (const arg of process.argv) {
+    if (arg.includes("--") || arg.includes("-")) {
+        switch (arg) {
+            case '--help':
+            case '-h':
+                showHelp();
+                break;
+            case '--doc':
+            case '-d':
+                howToUse();
+            case '--version':
+            case '-v':
+                console.log(`JaanLang v${version}`);
+        }
+        process.exit(0);
     }
 }
 let filename = process.argv[2];
