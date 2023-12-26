@@ -280,6 +280,16 @@ if (!filename) {
     console.error('Error: No files specified');
     process.exit(1);
 }
+// filetype: source.jaan or jaan
+// if no filetype then assume it is jaan
+// if filetype is not jaan then throw error
+if (filename.split('.').pop() !== "") {
+    //the file has a filetype
+    if (filename.split('.').pop() !== "jaan") {
+        console.error('Error: Invalid filetype. Only .jaan files are supported.');
+        process.exit(1);
+    }
+}
 //read file
 readFile(filename, 'utf8', (err, data) => {
     if (err) {
