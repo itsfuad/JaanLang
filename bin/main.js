@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile } from 'fs';
+import { readFile, existsSync } from 'fs';
 const _variableSet = new Set();
 function compile(code) {
     //remove starting and trailing spaces
@@ -275,7 +275,7 @@ function runCode(code) {
         console.log(`Ki korso eita?? ${e}`);
     }
 }
-const filename = process.argv[2];
+let filename = process.argv[2];
 if (!filename) {
     console.error('Error: No files specified');
     process.exit(1);
@@ -283,10 +283,17 @@ if (!filename) {
 // filetype: source.jaan or jaan
 // if no filetype then assume it is jaan
 // if filetype is not jaan then throw error
-if (filename.split('.').pop() !== "") {
-    //the file has a filetype
-    if (filename.split('.').pop() !== "jaan") {
-        console.error('Error: Invalid filetype. Only .jaan files are supported.');
+if (existsSync(filename) === false) {
+    console.error(`Error: File ${filename} not found`);
+    process.exit(1);
+}
+if (!filename.endsWith('.jaan')) {
+    const endsWith = filename.split('.').pop();
+    if (endsWith === "") {
+        filename = filename + ".jaan";
+    }
+    else {
+        console.error(`Error: Invalid file type: ${filename}`);
         process.exit(1);
     }
 }
