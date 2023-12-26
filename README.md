@@ -4,6 +4,9 @@ JaanLang is a programming language for couples and romantic people. It is a mini
 
 ![Cover](https://github.com/itsfuad/JaanLang/blob/main/cover.png)
 
+## Install
+Type `npm i -g jaan` in the terminal
+
 ## Syntax
 
 ### Basic Commands
