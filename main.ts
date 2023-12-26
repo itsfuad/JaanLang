@@ -332,7 +332,7 @@ if (existsSync(filename) === false) {
 
 if (!filename.endsWith('.jaan')) {
     const endsWith = filename.split('.').pop();
-    if (endsWith === ""){
+    if (!endsWith){
         filename = filename + ".jaan";
     } else {
         console.error(`Error: Invalid file type: ${filename}`);
