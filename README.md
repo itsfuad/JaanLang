@@ -18,13 +18,13 @@ Start of the program.
 End of the program.
 
 #### `dhoro`
-Declare a variable: `let <variableName>`.
+Declare a variable: `dhoro <variableName>`.
 
 #### `holo`
 Assign a value to a variable: `<variableName> = <value>`.
 
 #### `bolo`
-Print statement: `console.log(<value>)`.
+Print statement: `bolo "I love you"`.
 
 #### `kichu bolar nai`
 End of any block.
@@ -39,12 +39,17 @@ If statement.
 - `<value>`: Value to compare against.
 
 #### `tahole`
-Start of the if block: `{`.
+Start of the conditional block
 
 ### Loops
 
 #### `bar`
-Range loop: `for (let $ = 1; $ <= <value>; $++) {`.
+Range loop: `10 bar`.
+Example: 
+```jaan
+10 bar
+    bolo "I am sorry " + $
+```
 
 - `$`: Iteration count variable.
 - `<value>`: The upper limit for the loop.

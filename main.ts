@@ -12,18 +12,39 @@ const log = console.log;
 const version = process.env.npm_package_version || 'Development';
 
 const _variableSet = new Set<string>();
+_variableSet.add("$");
+
+let lines: string[] = [];
+
+let blockStart = false;
+
+const keywordsControl = {
+    "jodi": true,
+    "nahole": true,
+    "nahole jodi": true,
+}
+
+const keywordsLoop = {
+    "bar": true
+}
+
+const keywords = {
+    ...keywordsControl,
+    ...keywordsLoop
+}
+
 
 function compile(code: string) {
 
     //remove starting and trailing spaces
-    const lines = code.trim().split("\n");
+    lines = code.trim().split("\n");
 
-    if (!lines[0].trim().startsWith("hi jaan")) {
-        throw new Error("Missing Program entrypoint: hi jaan");
+    if (lines[0].trim() !== "hi jaan") {
+        throw new Error("😑: Missing Program entrypoint: hi jaan");
     }
 
-    if (!lines[lines.length - 1].trim().startsWith("bye jaan")) {
-        throw new Error("Missing Program exitpoint: bye jaan");
+    if (lines[lines.length - 1].trim() !== "bye jaan") {
+        throw new Error("😑: Missing Program exitpoint: bye jaan");
     }
 
     //remove first and last line
@@ -33,102 +54,269 @@ function compile(code: string) {
     let output = "";
 
     for (let i = 0; i < lines.length; i++) {
+        try {
 
-        //remove starting and trailing spaces
-        lines[i] = lines[i].trim();
+            //check indentation level
+            //validate indentation level
+            //if indentation level is not valid then throw error
 
-        //if comment then return
-        if (lines[i][0] === "#") {
-            continue;
-        }
 
-        //if line does not start with jodi then return
-        if (lines[i].startsWith("nahole jodi")) {
-            output = output + "} else " + parseConditional(lines[i].replace("nahole jodi", ""), i);
-        } else if (lines[i].startsWith("jodi")) {
-            output += parseConditional(lines[i], i);
-        }
-        else if (lines[i].startsWith("nahole")) {
-            output += "} else {";
-        } else if (lines[i].startsWith("kichu bolar nai")) {
-            output += "}";
-        } else if (lines[i].trim().startsWith("bolo")) {
-            //use regex
-            output += lines[i].replace(/(^\s)*bolo\s+(.*)$/gm, 'console.log($2);');
-        } else if (lines[i].trim().startsWith("dhoro")) {
-            //use regex
-            //validate variable name
-            //A variable name must start with a letter, underscore or dollar sign. Subsequent characters can also be digits (0-9).
-            //check if variable is already declared
-            //output += lines[i].replace(/(^\s)*dhoro\s+(.*)$/gm, 'let $2;');
-            //variable can be be only declared, or declared and assigned a value. Capture variable name and value like (dhoro) (variableName) ((holo) (value)?)
-            const regex = /dhoro\s+([a-zA-Z_$0-9]*)\s*(?:holo\s+(['"]?[a-zA-Z0-9]+['"]?)?)?/;
+            //remove starting and trailing spaces
+            //lines[i] = lines[i].trim();
 
-            const matches = lines[i].match(regex);
-            if (matches) {
-                const variableName = matches[1];
-                //console.log(variableName);
-                const value = matches[2];
-                //console.log(value);
-                //check if value is not a number
-                if (value && !/^[0-9]+$/.test(value)) {
-                    //console.log(`Value: ${value} is not a number.`);
-                    //check if value is a string
-                    validateOperand(value, i);
-                }else if(!value){
-                    //console.log(`Value: ${value} is undefined.`);
-                    throw new Error(`Line ${i}: Invalid syntax '${lines[i]}'`);
-                }
-
-                validateVariableName(variableName, i);
-
-                if (_variableSet.has(variableName)) {
-                    throw new Error(`Uff!! ${variableName} bolso to ekbar.`);
-                }
-                output += `let ${variableName};`;
-                _variableSet.add(variableName);
+            //if comment then return
+            if (lines[i][0] === "#") {
+                continue;
             }
 
-        } else if (/(.*) bar\s*(.*)/.test(lines[i])) {
-            output += rangeLoopParser(lines[i], i);
-        }
-        else {
-            output += lines[i];
+            //if block is not closed and line is empty then throw error
+            if (blockStart === true && i === lines.length - 1) {
+                throw new Error(`😑: This block is not closed.`);
+            }
+
+            //if line does not start with jodi then return
+            if (lines[i].trim().startsWith("nahole jodi")) {
+                if (!blockStart) {
+                    throw new Error(`😑: Conditional statement er block start hoy 'jodi' statement diye.`);
+                }
+                output = output + "} else " + parseConditional(lines[i].replace("nahole jodi", ""), i);
+            } else if (lines[i].trim().startsWith("jodi")) {
+
+                blockStart = true;
+                output += parseConditional(lines[i], i);
+                if (!lines[i].endsWith("tahole")) {
+                    throw new Error(`😑: Conditional statement er block start korte sesh e 'tahole' likha lage pagol.`);
+                }
+            }
+
+            else if (lines[i].trim().startsWith("nahole")) {
+                if (!blockStart) {
+                    throw new Error(`😑: Conditional statement er block start hoy 'jodi' statement diye.`);
+                }
+
+                output += "} else {";
+            } else if (lines[i].trim().startsWith("kichu bolar nai")) {
+                //end of block
+                output += "}";
+                blockStart = false;
+            } else if (lines[i].trim().startsWith("bolo")) {
+                //find parameter of bolo
+                const expression = lines[i].replace("bolo", "").trim();
+                //extract all parameters by searching for variables and strings
+                const regex = /(["'](.*)["'])|([a-zA-Z0-9]+)/g;
+                const matches = expression.match(regex);
+
+                if (!matches) {
+                    const garbage = expression.replace(/["'].*["']/g, "").replace(/[a-zA-Z0-9]+/g, "").trim();
+                    if (garbage) {
+                        throw new Error(`😑: Invalid token \`${garbage}\``);
+                    }
+                    throw new Error(`😑: Bolo ki? kichu to bolo.`);
+                }
+                //validate expression
+                //expression can be a string or a variable or a combination of both
+                if (!isValidExpression(expression)) {
+                    throw new Error(`😑: Invalid expression '${expression}'`);
+                }
+
+                //validate each parameter
+                for (const match of matches) {
+                    validateOperand(match);
+                }
+                //use regex
+                output += lines[i].replace(/(^\s)*bolo\s+(.*)$/gm, 'console.log($2);');
+            } else if (lines[i].trim().startsWith("dhoro")) {
+                //implement code
+                //remove dhoro and split by "holo"
+                const variableDeclaration = lines[i].replace("dhoro", "");
+                //if variableDeclaration contains holo then split by holo
+                const variableDeclarationParts = variableDeclaration.split("holo").map((part) => part.trim());
+
+                if (variableDeclarationParts.length > 1) {
+                    if (!variableDeclarationParts[1]) {
+                        throw new Error(`😑: Expected value after 'holo'. Missing value of '${variableDeclarationParts[0]}'`);
+                    } else {
+                        //check if it is a variable or value
+                        validateOperand(variableDeclarationParts[1]);
+                    }
+                }
+
+                if (variableDeclarationParts.length > 2) {
+                    throw new Error(`😑: Unexpected token '${variableDeclarationParts[2]}'`);
+                }
+
+                validateVariableName(variableDeclarationParts[0]);
+
+                output += `let ${variableDeclarationParts[0]} = ${variableDeclarationParts[1] || 0};`;
+                _variableSet.add(variableDeclarationParts[0]);
+
+            } else if (/(.*) bar\s*(.*)/.test(lines[i])) {
+                output += rangeLoopParser(lines[i]);
+                blockStart = true;
+            }
+            else {
+                output += lines[i];
+            }
+        } catch (e: any) {
+            //console.log(`Line ${i + 2}: ${e.message}`);
+            throw new Error(`Compilation failed\nLine ${i + 2}: ${e.message}`);
         }
     }
 
-    
     return output;
+
+
 }
 
-function validateOperand(value: string, lineNumber: number) {
-    if (/^["']/.test(value)) {
-        //console.log(`Value: ${value} is a string.`);
+/*
+function isValidExpression(expression: string) {
+    console.log(expression);
+    const ValidExpression = /^(\$|[a-zA-Z0-9]+|[a-zA-Z0-9]+\+[a-zA-Z0-9]+)$/;
+    console.log(`[${expression}] = ${ValidExpression.test(expression)}`);
+    return ValidExpression.test(expression);
+}
+*/
+
+function isValidExpression(expression: string) {
+
+    //split all tokens by operators and keep the operators in the array
+    const tokens = expression.split(/([+\-*/]+)/).filter((token) => token !== undefined && token !== "" && token !== " ").map((token) => token.trim());
+
+    const operators: string[] = [];
+
+    //validate each token
+    for (const token of tokens) {
+        //an operator can only be in the middle of 2 operands or minus sign can be before an operand but multiple minus sign cannot be before an operand. two minus sign can be before operand like a - -b. means a  - (-b) = a + b
+        if (/[+\-*/]+/.test(token)) {
+            operators.push(token);
+        } else {
+            validateOperand(token);
+        }
+    }
+
+    if (tokens[tokens.length - 1].match(/[+\-*/]+/)) {
+        return false;
+    }
+
+    //same operator cannot be positioned next to each other like a + + b is invalid, a + - b is valid, a - - b is valid, a - + b is valid
+    for (let i = 0; i < operators.length; i++) {
+        if (operators[i].length > 1) {
+            for (let j = 0; j < operators[i].length; j++) {
+                if (operators[i][j] === operators[i][j + 1]) {
+                    //console.log("Same operator cannot be positioned next to each other: " + expression);
+                    return false;
+                }
+            }
+        }
+    }
+
+    //eval(`2 + 4 * == 5`); //Unexpected token '=='
+    //eval(`2 + 4 * = 5`); //Unexpected token '='
+    //eval(`2 + 4 = 5`); //Invalid left-hand side in assignment
+    //eval(`2 + 4 == 5`); //true
+    //eval(`2 + 4 5`); //Unexpected number
+    //eval(`2 + 4 * 5 ==`); //Unexpected end of input
+
+    //Also need to implement this type of validation
+
+
+    return tokens;
+}
+
+/*
+_variableSet.add("$");
+_variableSet.add("a");
+_variableSet.add("b");
+_variableSet.add("c");
+_variableSet.add("d");
+_variableSet.add("q");
+_variableSet.add("sd");
+
+console.log(isValidExpression("a")); //true 
+console.log(isValidExpression("$")); //true reserved variable
+console.log(isValidExpression("a + b")); //true
+console.log(isValidExpression("a + b + c")); //true
+console.log(isValidExpression("a + b + 10 - d")); //true 
+console.log(isValidExpression("a + b + 10 - -d + 5")); //true 10 - (-d) + 5
+console.log(isValidExpression("a + b +")); //false expression cannot end with operator
+console.log(isValidExpression("a + b + 10 -")); //false expression cannot end with operator
+console.log(isValidExpression("-a")); //true -a is a valid expression
+console.log(isValidExpression("+a")); //true
+console.log(isValidExpression("a +- b")); //true a + (-b)
+console.log(isValidExpression("a + +b")); //true
+console.log(isValidExpression("a + +")); //false expression cannot end with operator
+console.log(isValidExpression("a -")); //false expression cannot end with operator
+console.log(isValidExpression(`"Hello"`)); //true 
+console.log(isValidExpression(`'Hello'`)); //true
+//console.log(isValidExpression(`"Hello`)); //false Unmatched quotes
+//console.log(isValidExpression(`'Hello`)); //false Unmatched quotes
+//console.log(isValidExpression(`Hello"`)); //false Unmatched quotes
+//console.log(isValidExpression(`Hello'`)); //false  Unmatched quotes
+console.log(isValidExpression(`"Hello" + "World"`)); //true
+//console.log(isValidExpression(`"Hello" + "World`)); //false Unmatched quotes
+//console.log(isValidExpression(`"Hello" + "`)); //false
+console.log(isValidExpression(`"Hello" + q`)); //true
+console.log(isValidExpression(`"Hello" + q + "World  " +`)); //false expression cannot end with operator
+console.log(isValidExpression(`2 + 4 * sd`)); //false Unexpected token '='
+//eval(`2 + 4 * == 5`); //Unexpected token '=='
+//eval(`2 + 4 * = 5`); //Unexpected token '='
+//eval(`2 + 4 = 5`); //Invalid left-hand side in assignment
+//eval(`2 + 4 == 5`); //true
+//eval(`2 + 4 5`); //Unexpected number
+//eval(`2 + 4 * 5 ==`); //Unexpected end of input
+*/
+
+
+function validateOperand(value: string) {
+    if (/["']/.test(value)) {
         //check if value is a string with proper quotes pair
-        if (/^["'].*["']$/.test(value) === false) {
-            //console.log(`Line ${lineNumber}: ${value} is a string with proper quotes pair.`);
-            throw new Error(`Line ${lineNumber}: Strings must be enclosed with ' or " '${value}'`);
+        if (isValidString(value) === false) {
+            //value = value.replace(/^["']/, "").replace(/["']$/, "");
+            throw new Error(`😑: Dhur jaan! Strings similar quotation e rakha lage jano na?. "${value}" or '${value}' eivabe.`);
         }
     } else if (/^[0-9]+$/.test(value) === false) {
-        //console.log(`Value: ${value} is a variable.`);
-        validateVariableName(value, lineNumber);
+        //check if value is a variable
+        validateVariableName(value);
         if (!_variableSet.has(value)) {
-            throw new Error(`Line ${lineNumber}: ${value} is not declared.`);
+            throw new Error(`😑: Uff jaan! Variable '${value}' koi paila tmi? Declare korso hae?.`);
         }
     }
+    return true;
 }
 
-function validateVariableName(variableName: string, lineNumber: number) {
+function validateVariableName(variableName: string) {
     //A variable name must start with a letter, underscore or dollar sign. Subsequent characters can also be digits (0-9).
-    if (!/^[a-zA-Z_$][a-zA-Z_$0-9]*$/.test(variableName)) {
-        throw new Error(`Line - ${lineNumber}: Invalid variable name: ${variableName}. Variable name must start with a letter, underscore or dollar sign. Subsequent characters can also be digits (0-9).`);
+    if (!/^[a-zA-Z_$][a-zA-Z_0-9]*$/.test(variableName)) {
+        throw new Error(`😑: Arey jaan! Variable name letter, underscore or dollar sign diye likha jay. '${variableName}' abar ki?`);
     }
 }
 
-function parseConditional(text: string, lineNumber: number){
+function isValidString(input: string) {
+    const regex = /^('([^']*)'|"([^"]*)")$/;
+    const matches = regex.test(input.trim());
+    return matches;
+}
+
+/*
+console.log(isValidString(`"Hello"`)); //true
+console.log(isValidString(`'Hello'`)); //true
+console.log(isValidString(`"Hello`)); //false
+console.log(isValidString(`'Hello`)); //false
+console.log(isValidString(`Hello"`)); //false
+console.log(isValidString(`Hello'`)); //false
+console.log(isValidString(`"Hello" + "World"`)); //false
+console.log(isValidString(`"Hello" + "World`)); //false
+console.log(isValidString(`"Hello" + "`)); //false
+console.log(isValidString(`"Hello" + q`)); //false
+console.log(isValidString(`"Hello world"`)); //false
+console.log(isValidString(`"Hello world`)); //false
+console.log(isValidString(`'Hello world'`)); //true
+*/
+
+function parseConditional(text: string, lineNumber: number) {
 
     //extract 2 parts of the conditional, first remove the jodi keyword.
-    text = text.replace("jodi", "");
+    text = text.replace("jodi", "").trim();
     //regex to extract the pattern1: (variable) (condition) (value) or pattern2: (variable) (value) [(hoy) tahole|(na hoy) tahole|(theke beshi) (hoy) tahole|(theke kom) (hoy) tahole|(theke beshi ba soman) (hoy) tahole|(theke kom ba soman) (hoy) tahole]
     const regex = /([a-zA-Z0-9]+) ([<>=!]+) ([a-zA-z0-9]+)/; //pattern1
     // if (variable) (value) hoy tahole -> if variable == value
@@ -142,7 +330,7 @@ function parseConditional(text: string, lineNumber: number){
     // if (variable) (value) theke beshi ba soman na hoy tahole -> if variable >= value === false
     // if (variable) (value) theke kom ba soman na hoy tahole -> if variable <= value === false
 
-    const regex2 = /([a-zA-Z0-9]+) ([a-zA-Z0-9]+) (hoy|na hoy|theke beshi|theke kom|theke beshi ba soman|theke kom ba soman) ((hoy|na hoy)?)/; //pattern2
+    const regex2 = /([a-zA-Z0-9]+)?\s*([a-zA-Z0-9]+)?\s*(hoy|na hoy|theke beshi|theke kom|[a-zA-Z0-9]+)?\s*(hoy|na hoy|[a-zA-Z0-9]+)?/;
 
     const matches = text.match(regex);
     const matches2 = text.match(regex2);
@@ -151,57 +339,106 @@ function parseConditional(text: string, lineNumber: number){
     let variable2 = "";
     let operator = "";
     let extraCondition = "";
+    let garbage = "";
 
-    //console.log(text);
+    //console.log(matches, matches2);
 
     if (matches) {
         //if jodi hoy tahole
         variable1 = matches[1];
         variable2 = matches[3];
 
-        validateOperand(variable1, lineNumber);
-        validateOperand(variable2, lineNumber);
+        if (!variable1) {
+            throw new Error(`😑: 1st value koi?`);
+        }
+        if (!variable2) {
+            throw new Error(`😑: 2nd value koi?`);
+        }
+
+        validateOperand(variable1);
+        validateOperand(variable2);
 
         operator = matches[2];
 
         //console.log(variable1, operator, variable2);
-        
+
     } else if (matches2) {
         //console.log(text);
         //if hoy tahole
-        variable1 = matches2[1];
-        variable2 = matches2[2];
+        variable1 = matches2[1]?.trim();
+        variable2 = matches2[2]?.trim();
 
-        validateOperand(variable1, lineNumber);
-        validateOperand(variable2, lineNumber);
-
-        operator = matches2[3];
-        extraCondition = matches2[4];
-
-        if (operator === "theke beshi") {
-            operator = ">";
-        } else if (operator === "theke kom") {
-            operator = "<";
-        } else if (operator === "hoy") {
-            operator = "===";
-        } else if (operator === "na hoy") {
-            operator = "!==";
+        if (!variable1) {
+            throw new Error(`😑: 1st value koi?`);
         }
 
-        if (extraCondition === "na hoy") {
-            extraCondition = "=== false";
-        } else if (extraCondition === "hoy") {
-            extraCondition = "=== true";
+        if (!variable2) {
+            throw new Error(`😑: 2nd value koi?`);
+        }
+
+        validateOperand(variable1);
+        validateOperand(variable2);
+
+        operator = matches2[3]?.trim();
+        extraCondition = matches2[4]?.trim();
+
+        garbage = matches2[5]?.trim();
+
+        if (!operator) {
+            throw new Error(`Line: ${lineNumber + 2}: '${lines[lineNumber]}' mane ki? Operator koi?\nEivabe likho: \njodi (variable) (condition) (value) tahole \nor \njodi (variable) (value) (primary compare) (secondary compare) tahole`);
+        }
+
+        //extra condition is only required if operator is theke beshi or theke kom
+        if (operator === "theke beshi" || operator === "theke kom" || operator === "theke beshi ba soman" || operator === "theke kom ba soman") {
+            if (extraCondition === "na hoy") {
+                extraCondition = "=== false";
+            } else if (extraCondition === "hoy") {
+                extraCondition = "=== true";
+            } else if (!extraCondition) {
+                throw new Error(`😑: '${operator}' ki? 'hoy' naki 'na hoy'?`);
+            } else {
+                throw new Error(`😑: Secondary condition just 'hoy' or 'na hoy' hoy`);
+            }
+            
+
+            if (operator === "theke beshi") {
+                operator = ">";
+            } else if (operator === "theke kom") {
+                operator = "<";
+            } else if (operator === "theke beshi ba soman") {
+                operator = ">=";
+            } else if (operator === "theke kom ba soman") {
+                operator = "<=";
+            }
+
+        } else if (operator === "hoy" || operator === "na hoy") {
+            if (extraCondition !== "tahole") {
+                //show ^ under the extraCondition 
+                throw new Error(`😑: 'tahole' likhte hoy condition sesh e. Ar tumi ki likhso?`);
+            }
+            operator = operator === "hoy" ? "===" : "!==";
+        } else {
+            throw new Error(`😑: '${operator}' kono valid operator na babe`);
         }
 
         //console.log(variable1, operator, variable2, extraCondition);
+    } else {
+        throw new Error(`😑: '${lines[lineNumber]}' mane ki?.\nEivabe likho: \njodi (variable) (condition) (value) tahole \nor \njodi (variable) (value) (primary compare) (secondary compare) tahole`);
+    }
+
+    if (extraCondition === "tahole") {
+        extraCondition = "";
+    }
+
+    if (garbage) {
+        throw new Error(`😑: '${garbage}' mane ki?`);
     }
 
     return `if (${variable1} ${operator} ${variable2} ${extraCondition}) {`;
 }
 
-function rangeLoopParser(text: string, lineNumber: number) {
-    
+function rangeLoopParser(text: string) {
+
     //syntax: (number) bar
     //User can use $ to access the current value of the loop
     //user can write like: 10 bar ewrwejwnel 
@@ -210,19 +447,19 @@ function rangeLoopParser(text: string, lineNumber: number) {
     const regex = /(.*) bar\s*(.*)/;
     const matches = text.match(regex);
     if (matches) {
-        const number = matches[1];
+        const number = matches[1].trim();
 
         //if number is number both positive and negative and float
         if (/^-?\d*(\.\d+)?$/.test(number) === false) {
-            throw new Error(`Line: ${lineNumber}: Invalid value '${number}'`);
-        } else if (Number(number) < 0){
-            throw new Error(`Line: ${lineNumber}: Invalid value '${number}'. Range loop must be positive.`);
+            throw new Error(`😑: Invalid value '${number}'`);
+        } else if (Number(number) < 0) {
+            throw new Error(`😑: Invalid value '${number}'. Range loop must be positive`);
         }
 
         //console.log(text, number, matches[2]);
 
         if (matches[2].trim() !== "") {
-            throw new Error(`Line: ${lineNumber}: Invalid token '${matches[2]}'`);
+            throw new Error(`😑: Invalid token '${matches[2]}'`);
         }
 
         return `for (let $ = 1; $ <= ${matches[1]}; $++) {`;
@@ -232,90 +469,12 @@ function rangeLoopParser(text: string, lineNumber: number) {
 }
 
 
-//console.log(parseConditional("jodi kichuEkta 3 hoy tahole"));
-//console.log(parseConditional("jodi kichuEkta 3 na hoy tahole"));
-//console.log(parseConditional("jodi kichuEkta 3 theke beshi hoy tahole"));
-//console.log(parseConditional("jodi kichuEkta 3 theke kom hoy tahole"));
-//console.log(parseConditional("jodi kichuEkta 3 theke beshi na hoy tahole"));
-//console.log(parseConditional("jodi kichuEkta 3 theke kom na hoy tahole"));
-//console.log(parseConditional("jodi kichuEkta 3 theke kom ba soman hoy tahole"));
-//console.log(parseConditional("jodi kichuEkta 3 theke kom ba soman na hoy tahole"));
-
-const MEANING_MAP = {
-    'hi jaan': 'Start of the program',
-    'bye jaan': 'End of the program',
-    'dhoro': 'Declare a variable: let <variableName>',
-    'holo': 'Assign a value to a variable: <variableName> = <value>',
-    'jodi': 'If statement: if <variableName> <operator> <value>',
-    'tahole': 'Start of the if block: {',
-    'kichu bolar nai': 'End of any block: }',
-    'bar': 'Range loop: for (let $ = 1; $ <= <value>; $++) {',
-    'bolo': 'Print statement: console.log(<value>)',
-    'hoy': 'Equal to: ===',
-    'na hoy': 'Not equal to: !==',
-    'theke beshi': 'Greater than: >',
-    'theke kom': 'Less than: <',
-    'theke beshi ba soman': 'Greater than or equal to: >=',
-    'theke kom ba soman': 'Less than or equal to: <=',
-};
-
-const COMMENT = '#';
-const VARIABLE = '([a-zA-Z0-9]+)';
-const OPERATORS = ['<', '>', '==', '!=', '<=', '>=', '===', '!==', 'na hoy', 'hoy', 'holo', 'theke beshi', 'theke kom', 'theke beshi ba soman', 'theke kom ba soman'];
-
-const srcCode = `
-hi jaan
-# This is a comment
-dhoro id holo 6
-dhoro kichuEkta holo id
-dhoro amrNaam holo "Rakib"
-dhoro nasa holo 9
-dhoro ass holo 'abb'
-
-jodi kichuEkta <= 0 na hoy tahole
-    bolo "0 theke kom"
-nahole jodi kichuEkta > 78 hoy tahole
-    bolo "0 theke beshi"
-nahole
-    bolo "huh?"
-kichu bolar nai
-
-jodi kichuEkta 0 hoy tahole
-    bolo "0 hoyeche"
-kichu bolar nai
-
-jodi kichuEkta 0 na hoy tahole
-    bolo "0 hoy nai"
-kichu bolar nai
-
-jodi kichuEkta 15 theke beshi hoy tahole
-    bolo "0 theke beshi hoyeche"
-kichu bolar nai
-
-jodi kichuEkta 5 theke kom na hoy tahole
-    bolo "0 theke kom hoyeche"
-kichu bolar nai
-
-jodi kichuEkta 9 hoy tahole
-    bolo "9 hoyeche"
-kichu bolar nai
-
-
-10 bar
-    # $ is the iteration count variable
-    bolo "Sorry Jaan " + $
-kichu bolar nai
-
-bye jaan
-`;
-
-
 function runCode(code: string) {
     const parsedCode = compile(code);
     try {
         eval(parsedCode);
-    } catch (e) {
-        console.log(`Ki korso eita?? ${e}`);
+    } catch (e: any) {
+        console.log(`Ki korso eita?? ${e.message}`);
     }
 }
 
