@@ -521,7 +521,7 @@ function howToUse(){
     log(chalk.blueBright('Printing'));
     log(chalk.greenBright('\tbolo <value>\n'));
     log(chalk.blueBright('If statement'));
-    log(chalk.greenBright('\tjodi <expression> tahole'));
+    log(chalk.greenBright('\t<val> jodi <val> <comp> tahole'));
     log(chalk.greenBright('\t\t<code>'));
     log(chalk.greenBright('\tnahole'));
     log(chalk.greenBright('\t\t<code>'));
@@ -529,7 +529,7 @@ function howToUse(){
     log(chalk.blueBright('Else if statement'));
     log(chalk.greenBright('\tnahole jodi <expression> tahole'));
     log(chalk.greenBright('\t\t<code>'));
-    log(chalk.greenBright('\tnahole jodi <expression> tahole\n'));
+    log(chalk.greenBright('\tnahole <val> jodi <val> <comp> tahole\n'));
     log(chalk.blueBright('Range loop'));
     log(chalk.greenBright('\t<number> bar'));
     log(chalk.greenBright('\t\t<code>'));
@@ -538,11 +538,13 @@ function howToUse(){
     log(chalk.greenBright('\t# This is a comment\n'));
     log(chalk.blueBright('Operators'));
     log(chalk.greenBright('\tholo -> ='));
+    log(chalk.greenBright('\ter soman -> =='));
     log(chalk.greenBright('\thoy -> =='));
     log(chalk.greenBright('\tna hoy -> !='));
     log(chalk.greenBright('\ttheke beshi -> >'));
     log(chalk.greenBright('\ttheke kom -> <'));
     log(chalk.greenBright('\ttheke beshi ba soman -> >='));
+    log(chalk.greenBright('\ttheke kom ba soman -> <='));
 }
 
 function showHelp(){
