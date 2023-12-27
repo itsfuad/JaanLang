@@ -1,43 +1,20 @@
 hi jaan
     # This is a comment
-    dhoro id holo 6
-    dhoro kichuEkta holo id
-    dhoro amrNaam holo "Tamanna"
+    dhoro amarId holo "fuad-123"
+    dhoro amarNam holo "Fuad"
 
-    jodi kichuEkta <= 0 na hoy tahole
-        bolo "0 theke kom"
-    nahole jodi kichuEkta > 78 hoy tahole
-        bolo "0 theke beshi"
+    dhoro amrAge holo 23
+
+    amrAge jodi 23 theke beshi hoy tahole
+        bolo "You are old enough to marry me"
+    nahole jodi 23 theke kom hoy tahole
+        bolo "Arektu wait koro"
     nahole
-        bolo "huh?"
-    kichu bolar nai
-
-    jodi a b theke beshi hoy ar b 20 theke kom hoy tahole
-        bolo "a b theke beshi hoy ar b 20 theke kom hoy"
-
-
-    jodi kichuEkta 0 hoy tahole
-        bolo "0 hoyeche"
-    kichu bolar nai
-
-    jodi kichuEkta 0 na hoy tahole
-        bolo "0 hoy nai"
-    kichu bolar nai
-
-    jodi kichuEkta 15 theke beshi hoy tahole
-        bolo "0 theke beshi hoyeche"
-    kichu bolar nai
-
-    jodi kichuEkta 5 theke kom na hoy tahole
-        bolo "0 theke kom hoyeche"
-    kichu bolar nai
-
-    jodi kichuEkta 9 hoy tahole
-        bolo "9 hoyeche"
-    kichu bolar nai
+        bolo "Dhuru picci"
+    huh
 
     10 bar
         bolo "Sorry Jaan " + $
-    kichu bolar nai
+    huh
 
 bye jaan

@@ -31,12 +31,13 @@ End of any block.
 
 ### Conditionals
 
-#### `jodi <variableName> <operator> <value> tahole`
+#### `<variableName> jodi <variableName> <operator> <assertion> tahole`
 If statement.
 
-- `<variableName>`: Name of the variable.
-- `<operator>`: Comparison operator (e.g., `hoy`, `na hoy`, `theke beshi`, `theke kom`, etc.).
+- `<variableName>`: Name of the variable or string or value.
+- `<operator>`: Comparison operator (e.g., `er soman`, `er theke beshi`, etc.).
 - `<value>`: Value to compare against.
+- `<assertion>`: True or false. Can only be `hoy` or `na hoy`
 
 #### `tahole`
 Start of the conditional block
