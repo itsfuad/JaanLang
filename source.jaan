@@ -5,9 +5,9 @@ hi jaan
 
     dhoro amrAge holo 23
 
-    amrAge jodi 23 theke beshi hoy tahole
+    amrAge jodi 23 er theke beshi hoy tahole
         bolo "You are old enough to marry me"
-    nahole jodi 23 theke kom hoy tahole
+    nahole amrAge jodi 23 er theke kom hoy tahole
         bolo "Arektu wait koro"
     nahole
         bolo "Dhuru picci"

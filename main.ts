@@ -298,7 +298,7 @@ function validateVariableName(variableName: string) {
 
     //check if variable name is a reserved keyword
     if (keywords[variableName]) {
-        throw new Error(`Arey jaan😑! '${variableName}' to reserved keyword.`);
+        throw new Error(`Arey jaan😑! '${variableName}' to reserved keyword. Eita variable er nam dite parba nah.`);
     }
 }
 

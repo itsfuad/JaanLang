@@ -21,7 +21,7 @@ End of the program.
 Declare a variable: `dhoro <variableName>`.
 
 #### `holo`
-Assign a value to a variable: `<variableName> = <value>`.
+Assign a value to a variable: `<variableName> holo <value>`.
 
 #### `bolo`
 Print statement: `bolo "I love you"`.
