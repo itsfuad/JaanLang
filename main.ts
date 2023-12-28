@@ -492,13 +492,13 @@ const str7 = 'a jodi 10 er soman na hoy tahole';
 
 //make regex that can match all the patterns. each group will be optional. if a group is not matched then it will be undefined
 //pattern (variable) (jodi) (variable) (er) (operator) (modifier) (tahole)
-const regex = /([a-z-A-Z0-9'"_]+)?\s*(\bjodi\b)?\s*([a-z-A-Z0-9'"_]+)?\s*(\ber\b)?\s*(\btheke\s+kom\s+ba\s+soman\b|\btheke\s+beshi\s+ba\s+soman\b|\btheke\s+beshi\b|\btheke\s+kom\b|\bsoman\b|)?\s*(\bna\s+hoy|hoy\b)?\s*(\btahole\b)?/;
+//const regex = /([a-z-A-Z0-9'"_]+)?\s*(\bjodi\b)?\s*([a-z-A-Z0-9'"_]+)?\s*(\ber\b)?\s*(\btheke\s+kom\s+ba\s+soman\b|\btheke\s+beshi\s+ba\s+soman\b|\btheke\s+beshi\b|\btheke\s+kom\b|\bsoman\b|)?\s*(\bna\s+hoy|hoy\b)?\s*(\btahole\b)?/;
 
 
 function runCode(code: string) {
     try{
         const parsedCode = compile(code);
-        console.log(parsedCode);
+        //console.log(parsedCode);
         try {
             eval(parsedCode);
         } catch (e: any) {
