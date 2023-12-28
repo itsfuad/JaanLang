@@ -42,7 +42,7 @@ const keywordsLoop = {
     "bar": true
 }
 
-const keywords: {[key: string]: boolean} = {
+const keywords: { [key: string]: boolean } = {
     ...keywordsControl,
     ...keywordsLoop,
     ...keywordBoolean
@@ -91,12 +91,12 @@ function compile(code: string) {
 
             //if line does not start with jodi then return
             if (lines[i].match(/(.*)\s+(jodi)\s+(.*)/)) {
-                if (!blockStart){
+                if (!blockStart) {
                     output += "if (" + parseConditional(lines[i]) + ") {";
                     blockStart = true;
                     continue;
                 }
-            } 
+            }
             if (lines[i].trim() === "nahole") {
                 output += "} else {";
                 continue;
@@ -274,20 +274,24 @@ console.log(isValidExpression(`2 + 4 * sd`)); //false Unexpected token '='
 
 
 function validateOperand(value: string) {
+    return !!operandType(value);
+}
+
+function operandType(value: string) {
+    //returns "string", "number", "variable"
     if (/["']/.test(value)) {
-        //check if value is a string with proper quotes pair
         if (isValidString(value) === false) {
-            //value = value.replace(/^["']/, "").replace(/["']$/, "");
             throw new Error(`Dhur jaan!😑 Strings similar quotation e rakha lage jano na?. "${value}" or '${value}' eivabe.`);
         }
+        return "string";
     } else if (/^[0-9]+$/.test(value) === false) {
-        //check if value is a variable
         validateVariableName(value);
         if (!_variableSet.has(value)) {
             throw new Error(`Uff jaan!😑 Variable '${value}' koi paila tmi? Declare korso hae?.`);
         }
+        return "variable";
     }
-    return true;
+    return "number";
 }
 
 function validateVariableName(variableName: string) {
@@ -334,11 +338,14 @@ function parseConditional(text: string) {
     let expression = "";
     let lastCondition = "";
 
+    const regex = /([a-z-A-Z0-9'"_]+)?\s*(\bjodi\b)?\s*([a-z-A-Z0-9'"_]+)?\s*(\ber kom ba soman hoy\b|\ber kom ba soman na hoy\b|\ber beshi ba soman hoy\b|\ber beshi ba soman na hoy\b|\ber beshi hoy\b|\ber beshi na hoy\b|\ber kom hoy\b|\ber kom na hoy\b|\ber soman hoy\b|\ber soman na hoy\b|\bhoy\b|\bna hoy\b)?\s*((.*)+)?/;
+
+
     //check if it is a conditional statement
     for (let i = 0; i < parts.length; i++) {
 
 
-        if (lastCondition && lastCondition === parts[i]){
+        if (lastCondition && lastCondition === parts[i]) {
             throw new Error(`Eksathe duibar same jinish use jay??😷'${lastCondition} ${parts[i]}'`);
         }
 
@@ -347,12 +354,10 @@ function parseConditional(text: string) {
             lastCondition = parts[i];
             continue;
         }
-        
+
         lastCondition = "";
 
-        const regex = /([a-z-A-Z0-9'"_]+)?\s*(\bjodi\b)?\s*([a-z-A-Z0-9'"_]+)?\s*(\ber\b)?\s*(\btheke\s+kom\s+ba\s+soman\b|\btheke\s+beshi\s+ba\s+soman\b|\btheke\s+beshi\b|\btheke\s+kom\b|\bsoman\b|)?\s*(\bna\s+hoy|hoy\b)?\s*(\btahole\b)?/;
-        const text = parts[i];
-        const match = text.match(regex);
+        const match = parts[i].match(regex);
 
         if (!match) {
             throw new Error("Aigula ki?😐 Invalid syntax");
@@ -361,51 +366,92 @@ function parseConditional(text: string) {
         const var1 = match[1];
         const jodi = match[2];
         const var2 = match[3];
-        const er = match[4];
-        let operator = match[5];
-        const isTrue = match[6];
-        const tahole = match[7];
 
-        if (!var1 || !validateOperand(var1)) {
+        if (!var1) {
             throw new Error("Gadha reh😞 Expected a valid 1st variable or value");
         }
         if (!jodi || jodi !== "jodi") {
             throw new Error("Gadha reh😞 Expected 'jodi' after variable or value");
         }
-        if (!var2 || !validateOperand(var2)) {
+        if (!var2) {
             throw new Error("Gadha reh😞 Expected a valid 2nd variable or value");
         }
 
-        if (!er || er !== "er") {
-            throw new Error("Gadha reh😞 Expected 'er' after 2nd variable or value");
+        let operator = match[4];
+
+        if (!operator) {
+            throw new Error("Gadha reh😞 Operator ke likhbe?");
         }
 
-        if (operator === "soman") {
-            operator = "===";
-        } else if (operator === "theke beshi") {
-            operator = ">";
-        } else if (operator === "theke kom") {
-            operator = "<";
-        } else if (operator === "theke beshi ba soman") {
-            operator = ">=";
-        } else if (operator === "theke kom ba soman") {
-            operator = "<=";
-        } else {
-            throw new Error(`Hayre pagol🤦‍♀️ Invalid operator '${operator}'. Valid operators are: er soman, theke beshi, theke kom, theke beshi ba soman, theke kom ba soman`);
+        if (!match[5]) {
+            throw new Error(`Arey jaan😑! last e 'tahole' likha lage after condition expression`);
+        } else if (match[5] !== "tahole") {
+            throw new Error(`Arey jaan😑! last e 'tahole' likha lage after condition expression. Tumi likhso '${match[5]}'`);
         }
 
-        if (isTrue && isTrue !== "hoy" && isTrue !== "na hoy") {
-            throw new Error(`Hayre pagol🤦‍♀️ Invalid modifier '${isTrue}'. Valid modifiers are: hoy, na hoy`);
-        }
-
-
-        if (!tahole || i == parts.length - 1 && parts[i].trim().endsWith("tahole") === false) {
-            throw new Error(`Hayre pagol🤦‍♀️ Invalid syntax. Expected 'tahole' at the end`);
-        }
-
-        expression += `${var1} ${operator} ${var2} ${isTrue === "hoy" ? " === true" : " === false"}`;
+        expression += validateConditionExpression(var1, var2, operator);
     }
     return expression;
+}
+
+//valid expressions
+//variable jodi variable (...)
+//variable jodi value["string"|number] (...)
+//value["string"|number] jodi value["string"|number] (...)
+
+//invalid expressions
+//value jodi variable (...) //should be variable jodi value //variable should be on left side
+
+function validateConditionExpression(var1: string, var2: string, operator: string) {
+
+    if (operandType(var1) != "variable" && operandType(var2) === "variable") {
+        throw new Error(`Arey jaan😑! Variable should be on the left side. Like '${var2} jodi ${var1} ${operator}`);
+    } else if (operandType(var2) === "variable" && ["hoy", "na hoy"].includes(operator)) {
+        throw new Error(`Umm.. Thik ache but '${var1} jodi ${var2} er soman ${operator}' eivabe likhle dekhte sundor lage. Eivabe likho`);
+    } else if (operandType(var2) != "variable" && operator === "er soman hoy") {
+        throw new Error(`Umm.. Thik ache but '${var1} jodi ${var2} hoy' eivabe likhle dekhte sundor lage. Eivabe likho`);
+    } else if (operandType(var2) != "variable" && operator === "er soman na hoy") {
+        throw new Error(`Umm.. Thik ache but '${var1} jodi ${var2} na hoy' eivabe likhle dekhte sundor lage. Eivabe likho`);
+    }
+
+    switch (operator) {
+        case 'hoy':
+        case 'er soman hoy':
+            operator = '==='
+            break;
+        case 'na hoy':
+        case 'er soman na hoy':
+            operator = '!=='
+            break;
+        case 'er kom hoy':
+            operator = '<'
+            break;
+        case 'er kom na hoy':
+            operator = '>'
+            break;
+        case 'er beshi hoy':
+            operator = '>'
+            break;
+        case 'er beshi na hoy':
+            operator = '<'
+            break;
+        case 'er kom ba soman hoy':
+            operator = '<='
+            break;
+        case 'er kom ba soman na hoy':
+            operator = '>='
+            break;
+        case 'er beshi ba soman hoy':
+            operator = '>='
+            break;
+        case 'er beshi ba soman na hoy':
+            operator = '<='
+            break;
+        default:
+            throw new Error(`Hayre pagol🤦‍♀️ Invalid operator '${operator}'. Valid operators are: er soman, theke beshi, theke kom, theke beshi ba soman, theke kom ba soman`);
+    }
+
+    return `${var1} ${operator} ${var2}`;
 }
 
 function rangeLoopParser(text: string) {
@@ -496,7 +542,7 @@ const str7 = 'a jodi 10 er soman na hoy tahole';
 
 
 function runCode(code: string) {
-    try{
+    try {
         const parsedCode = compile(code);
         //console.log(parsedCode);
         try {
@@ -509,7 +555,7 @@ function runCode(code: string) {
     }
 }
 
-function howToUse(){
+function howToUse() {
     log(chalk.yellowBright('\nJaanLang\n'));
     log(chalk.blueBright('Program must start with ') + chalk.greenBright('hi jaan') + chalk.blueBright(' keyword and end with ') + chalk.greenBright('bye jaan') + chalk.blueBright(' keyword.\n'));
     log(chalk.blueBright('Declaring variable'));
@@ -547,20 +593,20 @@ function howToUse(){
     log(chalk.greenBright('\ttheke kom ba soman -> <='));
 }
 
-function showHelp(){
+function showHelp() {
     log(chalk.yellowBright('\nJaanLang\n'));
     console.log('\t--help | -h: show help');
     console.log('\t--doc | -d: show documentation');
     console.log('\t--version | -v: shows the compiler version\n');
 }
 
-for (const arg of process.argv){
-    if (arg.includes("--") || arg.includes("-")){
-        switch (arg){
+for (const arg of process.argv) {
+    if (arg.includes("--") || arg.includes("-")) {
+        switch (arg) {
             case '--help':
             case '-h':
                 showHelp();
-            break;
+                break;
             case '--doc':
             case '-d':
                 howToUse();
@@ -591,7 +637,7 @@ if (existsSync(filename) === false) {
 
 if (!filename.endsWith('.jaan')) {
     const endsWith = filename.split('.').pop();
-    if (!endsWith){
+    if (!endsWith) {
         filename = filename + ".jaan";
     } else {
         console.error(`Error: Invalid file type: ${filename}`);
