@@ -506,17 +506,12 @@ function howToUse() {
     log(chalk.greenBright('\tbolo <value>\n'));
     log(chalk.blueBright('If statement'));
     log(chalk.greenBright('\t<val> jodi <val> <comp> tahole'));
-    log(chalk.greenBright('\t\t<code>'));
     log(chalk.greenBright('\tnahole'));
-    log(chalk.greenBright('\t\t<code>'));
     log(chalk.greenBright('\tkichu bolar nai\n'));
     log(chalk.blueBright('Else if statement'));
-    log(chalk.greenBright('\tnahole jodi <expression> tahole'));
-    log(chalk.greenBright('\t\t<code>'));
     log(chalk.greenBright('\tnahole <val> jodi <val> <comp> tahole\n'));
     log(chalk.blueBright('Range loop'));
     log(chalk.greenBright('\t<number> bar'));
-    log(chalk.greenBright('\t\t<code>'));
     log(chalk.greenBright('\tkichu bolar nai\n'));
     log(chalk.blueBright('Comments'));
     log(chalk.greenBright('\t# This is a comment\n'));
