@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFile, existsSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import chalk from 'chalk';
 import { config } from 'dotenv';
 
@@ -50,7 +50,7 @@ const keywords: { [key: string]: boolean } = {
 
 
 function compile(code: string) {
-
+    log(chalk.yellowBright('Compiling...'));
     //remove starting and trailing spaces
     lines = code.trim().split("\n");
 
@@ -92,21 +92,21 @@ function compile(code: string) {
             //if line does not start with jodi then return
             if (lines[i].match(/(.*)\s+(jodi)\s+(.*)/)) {
                 if (!blockStart) {
-                    output += "if (" + parseConditional(lines[i]) + ") {\n";
+                    output += "\nif (" + parseConditional(lines[i]) + ") {";
                     blockStart = true;
                     continue;
                 }
             }
             if (lines[i].trim() === "nahole") {
-                output += "} else \n";
+                output += "} else {";
                 continue;
             } else if (lines[i].trim().startsWith("nahole")) {
                 lines[i] = lines[i].replace("nahole", "").trim();
-                output += "} else if (" + parseConditional(lines[i]) + ") {\n";
+                output += "} else if (" + parseConditional(lines[i]) + ") {";
                 continue;
             } else if (lines[i].trim().startsWith("huh")) {
                 //end of block
-                output += "}\n";
+                output += "\n}";
                 blockStart = false;
             } else if (lines[i].trim().startsWith("bolo")) {
                 //find parameter of bolo
@@ -133,7 +133,7 @@ function compile(code: string) {
                     validateOperand(match);
                 }
                 //use regex
-                output += lines[i].replace(/(^\s)*bolo\s+(.*)$/gm, 'console.log($2);\n');
+                output += lines[i].replace(/(^\s)*bolo\s+(.*)$/gm, '\nconsole.log($2);');
             } else if (lines[i].trim().startsWith("dhoro")) {
                 //implement code
                 //remove dhoro and split by "holo"
@@ -156,7 +156,7 @@ function compile(code: string) {
 
                 validateVariableName(variableDeclarationParts[0]);
 
-                output += `let ${variableDeclarationParts[0]} = ${variableDeclarationParts[1] || 0};\n`;
+                output += `\nlet ${variableDeclarationParts[0]} = ${variableDeclarationParts[1] || 0};`;
                 _variableSet.add(variableDeclarationParts[0]);
 
             } else if (/(.*) bar\s*(.*)/.test(lines[i])) {
@@ -183,7 +183,7 @@ function compile(code: string) {
             throw new Error(`Line ${i + 2}: ${msg}\n\n${annotatedLine}\nCompilation failed🥺😭\n`);
         }
     }
-
+    log(chalk.greenBright('Compiled successfully'));
     return output;
 }
 
@@ -491,7 +491,7 @@ function rangeLoopParser(text: string) {
             throw new Error(`Hae??😑 Invalid token '${matches[2]}'|${matches[2]}`);
         }
 
-        return `for (let $ = 1; $ <= ${matches[1]}; $++) {\n`;
+        return `\nfor (let $ = 1; $ <= ${matches[1]}; $++) {`;
     }
 
     return text;
@@ -554,15 +554,14 @@ const str7 = 'a jodi 10 er soman na hoy tahole';
 //pattern (variable) (jodi) (variable) (er) (operator) (modifier) (tahole)
 //const regex = /([a-z-A-Z0-9'"_]+)?\s*(\bjodi\b)?\s*([a-z-A-Z0-9'"_]+)?\s*(\ber\b)?\s*(\btheke\s+kom\s+ba\s+soman\b|\btheke\s+beshi\s+ba\s+soman\b|\btheke\s+beshi\b|\btheke\s+kom\b|\bsoman\b|)?\s*(\bna\s+hoy|hoy\b)?\s*(\btahole\b)?/;
 
-
 function runCode(code: string) {
     try {
         const parsedCode = compile(code);
-        //console.log(parsedCode);
         try {
+            log(chalk.yellowBright('Running...'));
             eval(parsedCode);
         } catch (e: any) {
-            console.log(`Ki korso eita?? Internal error: ${e.message}`);
+            log(chalk.yellowBright(`Ki korso eita?? Internal error: ${e.message}`));
         }
     } catch (e: any) {
         log(chalk.redBright(e.message));
@@ -611,59 +610,81 @@ function showHelp() {
     log(chalk.yellowBright('\nJaanLang\n'));
     console.log('\t--help | -h: show help');
     console.log('\t--doc | -d: show documentation');
+    console.log('\t--compile|-c <filename>: compile and save to file');
     console.log('\t--version | -v: shows the compiler version\n');
 }
 
-for (const arg of process.argv) {
-    if (arg.includes("--") || arg.includes("-")) {
-        switch (arg) {
-            case '--help':
-            case '-h':
-                showHelp();
-                break;
-            case '--doc':
-            case '-d':
-                howToUse();
-            case '--version':
-            case '-v':
-                console.log(`JaanLang v${version}`);
-
+try{
+    for (let i = 2; i < process.argv.length; i++) {
+        if (process.argv[i].includes("--") || process.argv[i].includes("-")) {
+            switch (process.argv[i]) {
+                case '--help':
+                case '-h':
+                    showHelp();
+                    break;
+                case '--doc':
+                case '-d':
+                    howToUse();
+                case '--version':
+                case '-v':
+                    console.log(`JaanLang v${version}`);
+                    break;
+                case '--compile':
+                case '-c':
+                    //compile and save to file
+                    let filename = process.argv[i + 1];
+                    filename = processFile(filename);
+                    //read file
+                    const filedata = readFileData(filename);
+                    //compile
+                    const compiledCode = compile(filedata);
+                    //save to file
+                    const outputFilename = filename.replace(".jaan", ".js");
+                    writeFileSync(outputFilename, compiledCode);
+                    break;
+            }
+            process.exit(0);
         }
-        process.exit(0);
     }
-}
-
-let filename = process.argv[2];
-
-if (!filename) {
-    console.error('Error: No files specified');
+} catch (e: any) {
+    log(chalk.redBright(e.message));
     process.exit(1);
 }
 
-// filetype: source.jaan or jaan
-// if no filetype then assume it is jaan
-// if filetype is not jaan then throw error
+const filename = process.argv[2];
 
-if (existsSync(filename) === false) {
-    console.error(`Error: File ${filename} not found`);
-    process.exit(1);
-}
-
-if (!filename.endsWith('.jaan')) {
-    const endsWith = filename.split('.').pop();
-    if (!endsWith) {
-        filename = filename + ".jaan";
-    } else {
-        console.error(`Error: Invalid file type: ${filename}`);
+function processFile(filename: string) {
+    if (!filename) {
+        console.error('Error: No files specified');
         process.exit(1);
     }
+    // filetype: source.jaan or jaan
+    // if no filetype then assume it is jaan
+    // if filetype is not jaan then throw error
+    
+    if (existsSync(filename) === false) {
+        console.error(`Error: File ${filename} not found`);
+        process.exit(1);
+    }
+    
+    if (!filename.endsWith('.jaan')) {
+        const endsWith = filename.split('.').pop();
+        if (!endsWith) {
+            filename = filename + ".jaan";
+        } else {
+            console.error(`Error: Invalid file type: ${filename}`);
+            process.exit(1);
+        }
+    }
+
+    return filename;
 }
 
-//read file
-readFile(filename, 'utf8', (err, data) => {
-    if (err) {
-        console.log(`Error reading file from disk: ${err}`);
-    } else {
-        runCode(data);
-    }
-});
+function readFileData(filename: string){
+    //read file
+    let filedata = readFileSync(filename, 'utf-8');
+
+    return filedata;
+}
+
+runCode(readFileData(processFile(filename)));
