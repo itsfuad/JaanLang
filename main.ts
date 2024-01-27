@@ -52,12 +52,13 @@ const keywords: { [key: string]: boolean } = {
 function compile(code: string) {
     log(chalk.yellowBright('Compiling...'));
     //remove starting and trailing spaces
-    lines = code.trim().split("\n");
+    lines = code.trim().split("\n").map(line => line.trim()).filter((line) => line !== "");
 
+    
     if (lines[0].trim() !== "hi jaan") {
         throw new Error("Missing Program entrypoint 🤦‍♀️: hi jaan");
     }
-
+    
     if (lines[lines.length - 1].trim() !== "bye jaan") {
         throw new Error("Missing Program exitpoint 🤦‍♀️: bye jaan");
     }
@@ -82,11 +83,6 @@ function compile(code: string) {
             //if line is empty then return
             if (lines[i].trim() === "") {
                 continue;
-            }
-
-            //if block is not closed and line is empty then throw error
-            if (blockStart === true && i === lines.length - 1) {
-                throw new Error(`Block is not closed. 'huh' likhe sesh koro r ki korba?😑`);
             }
 
             //if line does not start with jodi then return
@@ -183,6 +179,12 @@ function compile(code: string) {
             throw new Error(`Line ${i + 2}: ${msg}\n\n${annotatedLine}\nCompilation failed🥺😭\n`);
         }
     }
+
+    //if block is not closed and line is empty then throw error
+    if (blockStart === true) {
+        throw new Error(`Block is not closed. 'huh' likhe sesh koro r ki korba?😑`);
+    }
+
     log(chalk.greenBright('Compiled successfully'));
     return output;
 }

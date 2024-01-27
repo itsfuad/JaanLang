@@ -34,7 +34,7 @@ const keywords = Object.assign(Object.assign(Object.assign({}, keywordsControl),
 function compile(code) {
     log(chalk.yellowBright('Compiling...'));
     //remove starting and trailing spaces
-    lines = code.trim().split("\n");
+    lines = code.trim().split("\n").map(line => line.trim()).filter((line) => line !== "");
     if (lines[0].trim() !== "hi jaan") {
         throw new Error("Missing Program entrypoint 🤦‍♀️: hi jaan");
     }
@@ -56,10 +56,6 @@ function compile(code) {
             //if line is empty then return
             if (lines[i].trim() === "") {
                 continue;
-            }
-            //if block is not closed and line is empty then throw error
-            if (blockStart === true && i === lines.length - 1) {
-                throw new Error(`Block is not closed. 'huh' likhe sesh koro r ki korba?😑`);
             }
             //if line does not start with jodi then return
             if (lines[i].match(/(.*)\s+(jodi)\s+(.*)/)) {
@@ -154,6 +150,10 @@ function compile(code) {
             }
             throw new Error(`Line ${i + 2}: ${msg}\n\n${annotatedLine}\nCompilation failed🥺😭\n`);
         }
+    }
+    //if block is not closed and line is empty then throw error
+    if (blockStart === true) {
+        throw new Error(`Block is not closed. 'huh' likhe sesh koro r ki korba?😑`);
     }
     log(chalk.greenBright('Compiled successfully'));
     return output;

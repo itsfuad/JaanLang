@@ -26,7 +26,7 @@ Assign a value to a variable: `<variableName> holo <value>`.
 #### `bolo`
 Print statement: `bolo "I love you"`.
 
-#### `kichu bolar nai`
+#### `huh`
 End of any block.
 
 ### Conditionals
