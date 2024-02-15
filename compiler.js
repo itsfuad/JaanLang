@@ -28,7 +28,7 @@ const keywords = Object.assign(Object.assign(Object.assign({}, keywordsControl),
 export function compile(code) {
     log(chalk.yellowBright('Compiling...'));
     //remove starting and trailing spaces
-    lines = code.trim().split("\n").map(line => line.trim()).filter((line) => line !== "");
+    lines = code.trim().split("\n");
     if (lines[0].trim() !== "hi jaan") {
         throw new Error("Missing Program entrypoint 🤦‍♀️: hi jaan");
     }
@@ -39,6 +39,7 @@ export function compile(code) {
     lines.shift();
     lines.pop();
     let output = "";
+    console.log(lines.length + " lines");
     for (let i = 0; i < lines.length; i++) {
         try {
             //remove starting and trailing spaces
@@ -132,6 +133,7 @@ export function compile(code) {
         catch (e) {
             //console.log(`Line ${i + 2}: ${e.message}`);
             let annotatedLine = `${lines[i].trim()}\n`;
+            console.log(i);
             //add spaces before ^ to align with the error message
             const error = e.message;
             if (!error) {

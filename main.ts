@@ -6,7 +6,7 @@ import { config } from 'dotenv';
 
 config();
 
-import { compile, log, runCode } from './compiler';
+import { compile, log, runCode } from './compiler.js';
 
 //get version from package.json
 const version = process.env.npm_package_version || 'Development';

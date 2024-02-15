@@ -43,7 +43,7 @@ const keywords: { [key: string]: boolean } = {
 export function compile(code: string) {
     log(chalk.yellowBright('Compiling...'));
     //remove starting and trailing spaces
-    lines = code.trim().split("\n").map(line => line.trim()).filter((line) => line !== "");
+    lines = code.trim().split("\n");
 
     
     if (lines[0].trim() !== "hi jaan") {
@@ -59,6 +59,8 @@ export function compile(code: string) {
     lines.pop();
 
     let output = "";
+
+    //console.log(lines.length + " lines");
 
     for (let i = 0; i < lines.length; i++) {
         try {
@@ -157,6 +159,7 @@ export function compile(code: string) {
         } catch (e: any) {
             //console.log(`Line ${i + 2}: ${e.message}`);
             let annotatedLine = `${lines[i].trim()}\n`;
+            //console.log(i);
             //add spaces before ^ to align with the error message
             const error = e.message;
             if (!error){
