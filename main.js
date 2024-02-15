@@ -31,7 +31,7 @@ const keywordsLoop = {
     "bar": true
 };
 const keywords = Object.assign(Object.assign(Object.assign({}, keywordsControl), keywordsLoop), keywordBoolean);
-function compile(code) {
+export function compile(code) {
     log(chalk.yellowBright('Compiling...'));
     //remove starting and trailing spaces
     lines = code.trim().split("\n").map(line => line.trim()).filter((line) => line !== "");

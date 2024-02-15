@@ -49,7 +49,7 @@ const keywords: { [key: string]: boolean } = {
 }
 
 
-function compile(code: string) {
+export function compile(code: string) {
     log(chalk.yellowBright('Compiling...'));
     //remove starting and trailing spaces
     lines = code.trim().split("\n").map(line => line.trim()).filter((line) => line !== "");

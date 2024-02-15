@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-export {};
+export declare function compile(code: string): string;
