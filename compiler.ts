@@ -294,14 +294,15 @@ function operandType(value: string) {
             throw new Error(`Dhur jaan!😑 Strings similar quotation e rakha lage jano na?. "${token}" or '${token}' eivabe.|${value}`);
         }
         return "string";
-    } else if (/^[0-9]+$/.test(value) === false) {
+    } else if (/^[0-9]+(\.[0-9]+)?$/.test(value)) { // Updated regex to include floats
+        return "number";
+    } else {
         validateVariableName(value);
         if (!_variableSet.has(value)) {
             throw new Error(`Uff jaan!😑 Variable '${value}' koi paila tmi? Declare korso hae?.|${value}`);
         }
         return "variable";
     }
-    return "number";
 }
 
 function validateVariableName(variableName: string) {

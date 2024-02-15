@@ -253,14 +253,16 @@ function operandType(value) {
         }
         return "string";
     }
-    else if (/^[0-9]+$/.test(value) === false) {
+    else if (/^[0-9]+(\.[0-9]+)?$/.test(value)) { // Updated regex to include floats
+        return "number";
+    }
+    else {
         validateVariableName(value);
         if (!_variableSet.has(value)) {
             throw new Error(`Uff jaan!😑 Variable '${value}' koi paila tmi? Declare korso hae?.|${value}`);
         }
         return "variable";
     }
-    return "number";
 }
 function validateVariableName(variableName) {
     //A variable name must start with a letter, underscore or dollar sign. Subsequent characters can also be digits (0-9).
