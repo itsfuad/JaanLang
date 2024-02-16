@@ -47,11 +47,11 @@ export function compile(code: string) {
 
     
     if (lines[0].trim() !== "hi jaan") {
-        throw new Error("Missing Program entrypoint 🤦‍♀️: hi jaan");
+        throw new Error("Error: Missing Program entrypoint 🤦‍♀️: hi jaan");
     }
     
     if (lines[lines.length - 1].trim() !== "bye jaan") {
-        throw new Error("Missing Program exitpoint 🤦‍♀️: bye jaan");
+        throw new Error("Error: Missing Program exitpoint 🤦‍♀️: bye jaan");
     }
 
     //remove first and last line
@@ -170,13 +170,13 @@ export function compile(code: string) {
             if (token) {
                 annotatedLine += "~".repeat(lines[i].trim().indexOf(token)) + "^\n";
             }
-            throw new Error(`Line ${i + 2}: ${msg}\n\n${annotatedLine}\nCompilation failed🥺😭\n`);
+            throw new Error(`Error at line ${i + 2}: ${msg}\n\n${annotatedLine}\nCompilation failed🥺😭\n`);
         }
     }
 
     //if block is not closed and line is empty then throw error
     if (blockStart === true) {
-        throw new Error(`Block is not closed. 'huh' likhe sesh koro r ki korba?😑`);
+        throw new Error(`Error: Block is not closed. 'huh' likhe sesh koro r ki korba?😑`);
     }
 
     log(chalk.greenBright('Compiled successfully'));

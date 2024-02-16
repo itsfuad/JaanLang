@@ -85,7 +85,12 @@ try{
         }
     }
 } catch (e: any) {
-    log(chalk.redBright(e.message));
+    let msg = e.message;
+    const line = msg.match(/Line [0-9]+/);
+    if (line){
+        msg = msg.replace(line[0], `Error at ${line[0]}`);
+    }
+    log(chalk.redBright(msg));
     process.exit(1);
 }
 
