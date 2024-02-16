@@ -37,14 +37,45 @@ const keywords: { [key: string]: boolean } = {
     ...keywordsControl,
     ...keywordsLoop,
     ...keywordBoolean
-}
+};
 
+const testCode = `hi jaan
+
+#declare a variable
+dhoro tmrCG holo 3.2
+dhoro amrCG holo 3.8
+
+
+#check if tmrCG is greater than amrCG
+amrCG jodi tmrCG er beshi hoy tahole
+    bolo "I love you"
+nahole
+    bolo "Breakup!!"
+huh
+
+#say sorry 5 times. '$' is a counter variable
+5 bar
+    bolo "Sorry " + $
+huh
+
+
+bye jaan`;
+
+//runCode(testCode);
+
+let startBlockStack: string[] = [];
+let endBlockStack: string[] = [];
 
 export function compile(code: string) {
+
+    startBlockStack = [];
+    endBlockStack = [];
+
     log(chalk.yellowBright('Compiling...'));
     //remove starting and trailing spaces
     lines = code.trim().split("\n");
 
+    //log(lines);
     
     if (lines[0].trim() !== "hi jaan") {
         throw new Error("Error: Missing Program entrypoint 🤦‍♀️: hi jaan");
@@ -67,6 +98,7 @@ export function compile(code: string) {
 
             //remove starting and trailing spaces
             //lines[i] = lines[i].trim();
+            //log("Line: " + i + ": " + lines[i]);
 
             //if comment then return
             if (lines[i].trim()[0] === "#") {
@@ -80,13 +112,12 @@ export function compile(code: string) {
 
             //if line does not start with jodi then return
             if (lines[i].match(/(.*)\s+(jodi)\s+(.*)/)) {
-                if (!blockStart) {
-                    output += "\nif (" + parseConditional(lines[i]) + ") {";
-                    blockStart = true;
-                    continue;
-                }
-            }
-            if (lines[i].trim() === "nahole") {
+                //log("Conditional statement found: " + lines[i]);
+                output += "\nif (" + parseConditional(lines[i]) + ") {";
+                //blockStart = true;
+                startBlockStack.push("if");
+                continue;
+            } else if (lines[i].trim() === "nahole") {
                 output += "} else {";
                 continue;
             } else if (lines[i].trim().startsWith("nahole")) {
@@ -96,7 +127,8 @@ export function compile(code: string) {
             } else if (lines[i].trim().startsWith("huh")) {
                 //end of block
                 output += "\n}";
-                blockStart = false;
+                //blockStart = false;
+                endBlockStack.push("if");
             } else if (lines[i].trim().startsWith("bolo")) {
                 //find parameter of bolo
                 const expression = lines[i].replace("bolo", "").trim();
@@ -150,10 +182,11 @@ export function compile(code: string) {
 
             } else if (/(.*) bar\s*(.*)/.test(lines[i])) {
                 output += rangeLoopParser(lines[i]);
-                blockStart = true;
-            }
-            else {
+                //blockStart = true;
+                startBlockStack.push("for");
+            } else {
                 const token = lines[i].trim().split(/\s+/)[0];
+                //log(token + " found");
                 throw new Error(`Invalid token😑 '${token}'|${token}`);
             }
         } catch (e: any) {
@@ -175,7 +208,7 @@ export function compile(code: string) {
     }
 
     //if block is not closed and line is empty then throw error
-    if (blockStart === true) {
+    if (startBlockStack.length !== endBlockStack.length) {
         throw new Error(`Error: Block is not closed. 'huh' likhe sesh koro r ki korba?😑`);
     }
 

@@ -17,7 +17,7 @@ hi jaan
         bolo "Sorry Jaan " + $
     huh
 
-    dhoro tmrCG holo 3.2
+    dhoro tmrCsG holo 3.2
     dhoro amrCG holo 3.8
 
     amrCG jodi tmrCG er beshi hoy tahole
