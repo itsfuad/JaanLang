@@ -62,4 +62,4 @@ Comment: Lines starting with `#` are ignored.
 
 ## Example
 
-![Example Code](./example.png)
+![Example Code](https://github.com/itsfuad/JaanLang/blob/main/example.png)
