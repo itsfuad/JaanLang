@@ -47,7 +47,7 @@ huh
 bye jaan`;
 let startBlockStack = [];
 let endBlockStack = [];
-export function compile(code) {
+export function compile(code, terminal = true) {
     var _a, _b, _c, _d, _e, _f;
     startBlockStack = [];
     log(chalk.yellowBright('Compiling...'));
@@ -229,7 +229,7 @@ export function compile(code) {
             if (token) {
                 annotatedLine += " ".repeat(lines[i].trim().indexOf(token));
                 for (let j = 0; j < token.length; j++) {
-                    annotatedLine += chalk.yellowBright("~");
+                    annotatedLine += terminal ? chalk.yellowBright("~") : "~";
                 }
             }
             //console.log(startBlockStack);

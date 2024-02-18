@@ -67,7 +67,7 @@ type BlockType = "jodi" | "nahole jodi" | "nahole" | `${number} bar`;
 let startBlockStack: Array<{ blockname: BlockType, line: number }> = [];
 let endBlockStack: Array<{ blockname: BlockType, line: number }> = [];
 
-export function compile(code: string) {
+export function compile(code: string, terminal = true) {
 
     startBlockStack = [];
 
@@ -269,7 +269,7 @@ export function compile(code: string) {
             if (token) {
                 annotatedLine += " ".repeat(lines[i].trim().indexOf(token));
                 for (let j = 0; j < token.length; j++) {
-                    annotatedLine += chalk.yellowBright("~");
+                    annotatedLine += terminal ? chalk.yellowBright("~") : "~";
                 }
             }
             //console.log(startBlockStack);
