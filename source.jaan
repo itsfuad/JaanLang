@@ -11,13 +11,13 @@ hi jaan
         bolo "Arektu wait koro"
     nahole
         bolo "Dhuru picci"
-    huh
+
 
     10 bar
         bolo "Sorry Jaan " + $
     huh
 
-    dhoro tmrCsG holo 3.2
+    dhoro tmrCG holo 3.2
     dhoro amrCG holo 3.8
 
     amrCG jodi tmrCG er beshi hoy tahole

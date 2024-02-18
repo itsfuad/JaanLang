@@ -3,7 +3,6 @@ export const log = console.log;
 const _variableSet = new Set();
 _variableSet.add("$");
 let lines = [];
-let blockStart = false;
 const keywordsControl = {
     "jodi": true,
     "nahole": true,
@@ -46,12 +45,11 @@ huh
 
 
 bye jaan`;
-//runCode(testCode);
 let startBlockStack = [];
 let endBlockStack = [];
 export function compile(code) {
+    var _a, _b, _c, _d, _e, _f;
     startBlockStack = [];
-    endBlockStack = [];
     log(chalk.yellowBright('Compiling...'));
     //remove starting and trailing spaces
     lines = code.trim().split("\n");
@@ -80,28 +78,72 @@ export function compile(code) {
             if (lines[i].trim() === "") {
                 continue;
             }
-            //if line does not start with jodi then return
-            if (lines[i].match(/(.*)\s+(jodi)\s+(.*)/)) {
+            if (lines[i].trim() === "nahole") { //Nahole block
+                //use stack to check if nahole is used with jodi
+                if (startBlockStack.length === 0) {
+                    throw new Error(`'nahole' er age kothao 'jodi' ba nahole [..] jodi' use korso?😒|nahole`);
+                }
+                if (((_a = startBlockStack.at(-1)) === null || _a === void 0 ? void 0 : _a.blockname) === "jodi" || ((_b = startBlockStack.at(-1)) === null || _b === void 0 ? void 0 : _b.blockname) === "nahole jodi") {
+                    output += "} else {";
+                    startBlockStack.pop();
+                    startBlockStack.push({ blockname: "nahole", line: i });
+                    //console.log('Else block popped stack');
+                    endBlockStack.pop();
+                    endBlockStack.push({ blockname: "nahole", line: i });
+                    continue;
+                }
+                else {
+                    throw new Error(`'nahole' er age kothao 'jodi' ba nahole [..] jodi' use korso?😒|nahole`);
+                }
+            }
+            else if (lines[i].trim().startsWith("nahole")) { //Nahole jodi block with condition
+                /*
+                lines[i] = lines[i].replace("nahole", "").trim();
+                output += "} else if (" + parseConditional(lines[i]) + ") {";
+                continue;
+                */
+                //use stack to check if nahole is used with jodi. Nahole is "else if" in bangla
+                if (startBlockStack.length === 0) {
+                    throw new Error(`'nahole jodi' er age kothao 'jodi' ba nahole [..] jodi' use korso?😒|nahole jodi`);
+                }
+                6;
+                if (((_c = startBlockStack.at(-1)) === null || _c === void 0 ? void 0 : _c.blockname) === "jodi" || ((_d = startBlockStack.at(-1)) === null || _d === void 0 ? void 0 : _d.blockname) === "nahole jodi") {
+                    output += "} else if (" + parseConditional(lines[i].replace("nahole", "").trim()) + ") {";
+                    startBlockStack.pop();
+                    startBlockStack.push({ blockname: "nahole jodi", line: i });
+                    //console.log('Else if block popped stack');
+                    endBlockStack.pop();
+                    endBlockStack.push({ blockname: "nahole jodi", line: i });
+                    continue;
+                }
+                else {
+                    throw new Error(`'nahole jodi' er age kothao 'jodi' ba nahole [..] jodi' use korso?😒|nahole jodi`);
+                }
+            }
+            else if (lines[i].trim().match(/(.*)\s+(jodi)\s+(.*)/)) { //Jodi block
                 //log("Conditional statement found: " + lines[i]);
                 output += "\nif (" + parseConditional(lines[i]) + ") {";
                 //blockStart = true;
-                startBlockStack.push("if");
-                continue;
-            }
-            else if (lines[i].trim() === "nahole") {
-                output += "} else {";
-                continue;
-            }
-            else if (lines[i].trim().startsWith("nahole")) {
-                lines[i] = lines[i].replace("nahole", "").trim();
-                output += "} else if (" + parseConditional(lines[i]) + ") {";
+                startBlockStack.push({ blockname: "jodi", line: i });
+                endBlockStack.push({ blockname: "jodi", line: i });
+                //console.log('If block pushed');
                 continue;
             }
             else if (lines[i].trim().startsWith("huh")) {
                 //end of block
+                //output += "\n}";
+                if (startBlockStack.length === 0) {
+                    throw new Error(`Khoda amr😑!! Kono block start korso j 'huh' likhso?😒|huh`);
+                }
+                //console.log(`start stacks: `, startBlockStack);
+                //console.log(`end stacks: `, endBlockStack);
+                //console.log(`Last block start: ${startBlockStack.at(-1)?.blockname}`);
+                //console.log(`Last block end: ${endBlockStack.at(-1)?.blockname}`);
+                if (((_e = startBlockStack.at(-1)) === null || _e === void 0 ? void 0 : _e.blockname) === ((_f = endBlockStack.at(-1)) === null || _f === void 0 ? void 0 : _f.blockname)) {
+                    startBlockStack.pop();
+                    endBlockStack.pop();
+                }
                 output += "\n}";
-                //blockStart = false;
-                endBlockStack.push("if");
             }
             else if (lines[i].trim().startsWith("bolo")) {
                 //find parameter of bolo
@@ -114,12 +156,12 @@ export function compile(code) {
                     if (garbage) {
                         throw new Error(`Invalid token😑 '${garbage}'|${garbage}`);
                     }
-                    throw new Error(`Bolo ki?😑 kichu to bolo.`);
+                    throw new Error(`Bolo ki?😑 kichu to bolo.|bolo`);
                 }
                 //validate expression
                 //expression can be a string or a variable or a combination of both
                 if (!isValidExpression(expression)) {
-                    throw new Error(`Invalid expression😑 '${expression}'`);
+                    throw new Error(`Invalid expression😑 '${expression}'|${expression}`);
                 }
                 //validate each parameter
                 for (const match of matches) {
@@ -134,9 +176,10 @@ export function compile(code) {
                 const variableDeclaration = lines[i].replace("dhoro", "");
                 //if variableDeclaration contains holo then split by holo
                 const variableDeclarationParts = variableDeclaration.split("holo").map((part) => part.trim());
+                //console.log(variableDeclarationParts);
                 if (variableDeclarationParts.length > 1) {
                     if (!variableDeclarationParts[1]) {
-                        throw new Error(`Expected value after 'holo'. '${variableDeclarationParts[0]} er value koi?😤'`);
+                        throw new Error(`Expected value after 'holo'. '${variableDeclarationParts[0]} er value koi?😤'|holo`);
                     }
                     else {
                         //check if it is a variable or value
@@ -144,43 +187,63 @@ export function compile(code) {
                     }
                 }
                 if (variableDeclarationParts.length > 2) {
-                    throw new Error(`Unexpected token😑 after ${variableDeclarationParts[1]}. Found '${variableDeclarationParts[2]}'|${variableDeclarationParts[2]}`);
+                    throw new Error(`Ajaira token😑 after ${variableDeclarationParts[1]}. Found '${variableDeclarationParts[2]}'|${variableDeclarationParts[2]}`);
                 }
                 validateVariableName(variableDeclarationParts[0]);
                 output += `\nlet ${variableDeclarationParts[0]} = ${variableDeclarationParts[1] || 0};`;
                 _variableSet.add(variableDeclarationParts[0]);
             }
             else if (/(.*) bar\s*(.*)/.test(lines[i])) {
+                /*
                 output += rangeLoopParser(lines[i]);
                 //blockStart = true;
                 startBlockStack.push("for");
+                */
+                //capture the first group of the regex
+                const number = lines[i].match(/(.*) bar\s*(.*)/)[1].trim();
+                //number can be only a positive integer
+                if (/^\d+$/.test(number) === false) {
+                    throw new Error(`Ultapalta value😑 '${number}'. Looping variable always positive number hoy jaan|${number}`);
+                }
+                const n = Number(number);
+                startBlockStack.push({ blockname: `${n} bar`, line: i });
+                endBlockStack.push({ blockname: `${n} bar`, line: i });
+                output += rangeLoopParser(lines[i]);
             }
             else {
                 const token = lines[i].trim().split(/\s+/)[0];
                 //log(token + " found");
-                throw new Error(`Invalid token😑 '${token}'|${token}`);
+                throw new Error(`Ajaira token😑 '${token}'|${token}`);
             }
         }
         catch (e) {
-            //console.log(`Line ${i + 2}: ${e.message}`);
             let annotatedLine = `${lines[i].trim()}\n`;
             //console.log(i);
             //add spaces before ^ to align with the error message
             const error = e.message;
             if (!error) {
-                throw new Error("Unexpected error occured");
+                throw new Error("Allah!! ki jani hoise.😨 Ami kichu jani na🥺");
             }
             const msg = error.split("|")[0];
             let token = error.split("|")[1];
             if (token) {
-                annotatedLine += "~".repeat(lines[i].trim().indexOf(token)) + "^\n";
+                annotatedLine += " ".repeat(lines[i].trim().indexOf(token));
+                for (let j = 0; j < token.length; j++) {
+                    annotatedLine += chalk.yellowBright("~");
+                }
             }
+            //console.log(startBlockStack);
+            //console.log(endBlockStack);
             throw new Error(`Error at line ${i + 2}: ${msg}\n\n${annotatedLine}\nCompilation failed🥺😭\n`);
         }
     }
+    //console.log(startBlockStack);
+    //console.log(endBlockStack);
     //if block is not closed and line is empty then throw error
-    if (startBlockStack.length !== endBlockStack.length) {
-        throw new Error(`Error: Block is not closed. 'huh' likhe sesh koro r ki korba?😑`);
+    if (startBlockStack.length || endBlockStack.length) {
+        //console.log(startBlockStack);
+        //console.log(endBlockStack);
+        throw new Error(`Error at line ${startBlockStack[0].line + 2}:  Block end korte 'huh' likho nai😑.\nCompilation failed🥺😭\n`);
     }
     log(chalk.greenBright('Compiled successfully'));
     return output;
@@ -351,21 +414,22 @@ function parseConditional(text) {
         const var1 = match[1];
         const jodi = match[2];
         const var2 = match[3];
+        //console.log(`var1: ${var1}, jodi: ${jodi}, var2: ${var2}`);
         if (!var1) {
             throw new Error("Gadha reh😞 Expected a valid 1st variable or value");
         }
         if (!jodi || jodi !== "jodi") {
-            throw new Error("Gadha reh😞 Expected 'jodi' after variable or value");
+            throw new Error(`Gadha reh😞 Expected 'jodi' after variable or value|${var1}`);
         }
         if (!var2) {
-            throw new Error("Gadha reh😞 Expected a valid 2nd variable or value");
+            throw new Error(`Gadha reh😞 Expected a valid 2nd variable or value|${jodi}`);
         }
         let operator = match[4];
         if (!operator) {
-            throw new Error("Gadha reh😞 Operator ke likhbe?");
+            throw new Error(`Gadha reh😞 Operator ke likhbe?|${var2}`);
         }
         if (!match[5]) {
-            throw new Error(`Arey jaan😑! last e 'tahole' likha lage after condition expression`);
+            throw new Error(`Arey jaan😑! last e 'tahole' likha lage after condition expression|${operator}`);
         }
         else if (match[5] !== "tahole") {
             throw new Error(`Arey jaan😑! last e 'tahole' likha lage after condition expression. Tumi likhso '${match[5]}'`);
@@ -388,10 +452,10 @@ function validateConditionExpression(var1, var2, operator) {
         throw new Error(`Umm.. Thik ache but '${var1} jodi ${var2} er soman ${operator}' eivabe likhle dekhte sundor lage. Eivabe likho|${operator}`);
     }
     else if (operandType(var2) != "variable" && operator === "er soman hoy") {
-        throw new Error(`Umm.. Thik ache but '${var1} jodi ${var2} hoy' eivabe likhle dekhte sundor lage. Eivabe likho|er soman hoy`);
+        throw new Error(`Umm.. Thik ache but '${var1} jodi ${var2} hoy' eivabe likhle dekhte sundor lage. Eivabe likho|er soman hoy|${operator}`);
     }
     else if (operandType(var2) != "variable" && operator === "er soman na hoy") {
-        throw new Error(`Umm.. Thik ache but '${var1} jodi ${var2} na hoy' eivabe likhle dekhte sundor lage. Eivabe likho|er soman na hoy`);
+        throw new Error(`Umm.. Thik ache but '${var1} jodi ${var2} na hoy' eivabe likhle dekhte sundor lage. Eivabe likho|er soman na hoy|${operator}`);
     }
     switch (operator) {
         case 'hoy':
@@ -443,7 +507,7 @@ function rangeLoopParser(text) {
         const number = matches[1].trim();
         //if number is number both positive and negative and float
         if (/^-?\d*(\.\d+)?$/.test(number) === false) {
-            throw new Error(`Eita ki likhso?😑 Invalid value '${number}'`);
+            throw new Error(`Eita ki likhso?😑 Invalid value '${number}'|${number}`);
         }
         else if (Number(number) < 0) {
             throw new Error(`Eita ki likhso?😑 Invalid value '${number}'. Range loop must be positive|${number}`);
