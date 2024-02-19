@@ -78,11 +78,16 @@ export function compile(code: string, terminal = true) {
     //log(lines);
     
     if (lines[0].trim() !== "hi jaan") {
-        throw new Error("Error: Missing Program entrypoint 🤦‍♀️: hi jaan");
+        throw new Error(`Error at line 1:  Missing Program entrypoint 'hi jaan' on the first line 😩`);
     }
     
     if (lines[lines.length - 1].trim() !== "bye jaan") {
-        throw new Error("Error: Missing Program exitpoint 🤦‍♀️: bye jaan");
+        throw new Error(`Error at line ${lines.length + 1}: Missing Program exitpoint 'bye jaan' on the last line 😩`);
+    }
+
+    //if any line after 'bye jaan' then throw error
+    if (code.trimStart().endsWith("bye jaan") === false) {
+        throw new Error(`Error at line ${lines.length + 1}: 'bye jaan' er pore r kicchu lekha jabe na. Extra lines remove koro 😩`);
     }
 
     //remove first and last line
