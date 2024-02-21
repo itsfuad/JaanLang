@@ -2,6 +2,15 @@
 
 Let's explore the basics of JaanLang to do simple tasks.
 
+## Installation
+Install Node.js and npm from [here](https://nodejs.org/en/download/).
+
+Run `npm install -g jaan` to install JaanLang compiler globally.
+
+You can the use `jaan` command to compile and run JaanLang programs.
+
+Run `jaan -h` to see the help menu.
+
 ## Starting program
 
 Programs must start with `hi jaan` and end with `bye jaan`:
