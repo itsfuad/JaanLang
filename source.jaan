@@ -1,32 +1,28 @@
 hi jaan
+    # This is a comment
+    dhoro amarId holo "fuad-123"
+    dhoro amarNam holo "Fuad"
 
-	dhoro size holo 3
-	
-	bolo "("
+    dhoro amrAge holo 23
 
-	size bar 
-		bolo " "
-	huh
+    amrAge jodi 23 er beshi hoy tahole
+        bolo "You are old enough to marry me"
+    nahole amrAge jodi 23 hoy tahole
+        bolo "Arektu wait koro"
+    nahole
+        bolo "Dhuru picci"
+    huh
 
-    bolo "."
+    10 bar
+        bolo "Sorry Jaan " + $
+    huh
 
-    size bar 
-		bolo " "
-	huh
+    dhoro tmrCG holo 3.2
+    dhoro amrCG holo 3.8
 
-    bolo ")("
-
-    size bar 
-		bolo " "
-	huh
-
-    bolo "."
-
-    size bar 
-		bolo " "
-	huh
-
-    bolo ")"
-
-
+    amrCG jodi tmrCG er beshi hoy tahole
+        bolo "I love you"
+    nahole
+        bolo "Breakup!!"
+    huh
 bye jaan
