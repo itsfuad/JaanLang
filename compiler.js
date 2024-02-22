@@ -50,7 +50,7 @@ let endBlockStack = [];
 export function compile(code, terminal = true) {
     var _a, _b, _c, _d, _e, _f;
     startBlockStack = [];
-    log(chalk.yellowBright('Compiling...'));
+    terminal ? log(chalk.yellowBright('Compiling...')) : null;
     //remove starting and trailing spaces
     lines = code.trim().split("\n");
     //log(lines);
@@ -263,7 +263,7 @@ export function compile(code, terminal = true) {
         //console.log(endBlockStack);
         throw new Error(`Error at line ${startBlockStack[0].line + 2}:  Block end korte 'huh' likho nai😑.\nCompilation failed🥺😭\n`);
     }
-    log(chalk.greenBright('Compiled successfully'));
+    terminal ? log(chalk.greenBright('Compiled successfully')) : null;
     return output;
 }
 /*

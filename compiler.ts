@@ -71,7 +71,7 @@ export function compile(code: string, terminal = true) {
 
     startBlockStack = [];
 
-    log(chalk.yellowBright('Compiling...'));
+    terminal ? log(chalk.yellowBright('Compiling...')) : null;
     //remove starting and trailing spaces
     lines = code.trim().split("\n");
 
@@ -307,7 +307,7 @@ export function compile(code: string, terminal = true) {
         throw new Error(`Error at line ${startBlockStack[0].line + 2}:  Block end korte 'huh' likho nai😑.\nCompilation failed🥺😭\n`);
     }
 
-    log(chalk.greenBright('Compiled successfully'));
+    terminal ? log(chalk.greenBright('Compiled successfully')) : null;
     return output;
 }
 
