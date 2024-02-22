@@ -250,7 +250,12 @@ export function compile(code, terminal = true) {
         if (startBlockStack.length || endBlockStack.length) {
             //console.log(startBlockStack);
             //console.log(endBlockStack);
-            throw new Error(`Error at line ${startBlockStack[0].line + 2}:  Block end korte 'huh' likho nai😑.\nCompilation failed🥺😭\n`);
+            if (startBlockStack.length > 0) {
+                throw new Error(`Error at line ${startBlockStack[0].line + 2}:  Block end korte 'huh' likho nai😑.\nCompilation failed🥺😭\n`);
+            }
+            else {
+                throw new Error(`Error:  Kono ekta block end koro nai😑.\nCompilation failed🥺😭\n`);
+            }
         }
         terminal ? log(chalk.greenBright('Compiled successfully')) : null;
         return output;

@@ -70,7 +70,8 @@ let endBlockStack: Array<{ blockname: BlockType, line: number }> = [];
 export function compile(code: string, terminal = true) {
 
     try{
-        startBlockStack = [];
+        startBlockStack = new Array<{ blockname: BlockType, line: number }>();
+        endBlockStack = new Array<{ blockname: BlockType, line: number }>();
 
         let i = 0;
     
@@ -291,7 +292,11 @@ export function compile(code: string, terminal = true) {
         if (startBlockStack.length || endBlockStack.length) {
             //console.log(startBlockStack);
             //console.log(endBlockStack);
-            throw new Error(`Error at line ${startBlockStack[0].line + 2}:  Block end korte 'huh' likho nai😑.\nCompilation failed🥺😭\n`);
+            if (startBlockStack.length > 0){
+                throw new Error(`Error at line ${startBlockStack[0].line + 2}:  Block end korte 'huh' likho nai😑.\nCompilation failed🥺😭\n`);
+            } else {
+                throw new Error(`Error:  Kono ekta block end koro nai😑.\nCompilation failed🥺😭\n`);
+            }
         }
     
         terminal ? log(chalk.greenBright('Compiled successfully')) : null;
