@@ -50,7 +50,8 @@ let endBlockStack = [];
 export function compile(code, terminal = true) {
     var _a, _b, _c, _d, _e, _f;
     try {
-        startBlockStack = [];
+        startBlockStack = new Array();
+        endBlockStack = new Array();
         let i = 0;
         terminal ? log(chalk.yellowBright('Compiling...')) : null;
         //remove starting and trailing spaces
@@ -567,7 +568,7 @@ function rangeLoopParser(text, line) {
                     throw new Error(`${number} paiso koi? ki likhso egula hae?? 😑|${number}`);
                 }
                 else {
-                    console.log(typeof value, value);
+                    //console.log(typeof value, value);
                     if (typeof value === "number") {
                         if (value < 0) {
                             throw new Error(`'${number}' ba ${value} diye loop iterate kora jabe na😑. Looping variable always positive number hoy jaan|${number}`);

@@ -645,7 +645,7 @@ function rangeLoopParser(text: string, line: number) {
                 if (!value) {
                     throw new Error(`${number} paiso koi? ki likhso egula hae?? 😑|${number}`);
                 } else {
-                    console.log(typeof value, value);
+                    //console.log(typeof value, value);
                     if (typeof value === "number") {
                         if (value < 0) {
                             throw new Error(`'${number}' ba ${value} diye loop iterate kora jabe na😑. Looping variable always positive number hoy jaan|${number}`);
