@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 export const log = console.log;
-const _variableSet = new Set();
-_variableSet.add("$");
+const _variableSet = new Map();
+_variableSet.set("$", 1);
 let lines = [];
 const keywordsControl = {
     "jodi": true,
@@ -194,8 +194,23 @@ export function compile(code, terminal = true) {
                     throw new Error(`Ajaira token😑 after ${variableDeclarationParts[1]}. Found '${variableDeclarationParts[2]}'|${variableDeclarationParts[2]}`);
                 }
                 validateVariableName(variableDeclarationParts[0]);
-                output += `\nlet ${variableDeclarationParts[0]} = ${variableDeclarationParts[1] || 0};`;
-                _variableSet.add(variableDeclarationParts[0]);
+                let value = variableDeclarationParts[1];
+                if (value) {
+                    const type = operandType(value);
+                    switch (type) {
+                        case "string":
+                            value = String(value);
+                            break;
+                        case "number":
+                            value = Number(value);
+                            break;
+                        case "variable":
+                            value = _variableSet.get(value);
+                            break;
+                    }
+                }
+                output += `\nlet ${variableDeclarationParts[0]} = ${value};`;
+                _variableSet.set(variableDeclarationParts[0], value);
             }
             else if (/(.*) bar\s*(.*)/.test(lines[i])) {
                 /*
@@ -205,14 +220,13 @@ export function compile(code, terminal = true) {
                 */
                 //capture the first group of the regex
                 const number = lines[i].match(/(.*) bar\s*(.*)/)[1].trim();
+                /*
                 //number can be only a positive integer
-                if (/^\d+$/.test(number) === false) {
+                if (/^\d+$/.test(number) === false || _variableSet.has(number)) {
                     throw new Error(`Ultapalta value😑 '${number}'. Looping variable always positive number hoy jaan|${number}`);
                 }
-                const n = Number(number);
-                startBlockStack.push({ blockname: `${n} bar`, line: i });
-                endBlockStack.push({ blockname: `${n} bar`, line: i });
-                output += rangeLoopParser(lines[i]);
+                */
+                output += rangeLoopParser(lines[i], i);
             }
             else {
                 const token = lines[i].trim().split(/\s+/)[0];
@@ -351,7 +365,7 @@ function operandType(value) {
         }
         return "string";
     }
-    else if (/^[0-9]+(\.[0-9]+)?$/.test(value)) { // Updated regex to include floats
+    else if (/^(-)?[0-9]+(\.[0-9]+)?$/.test(value)) { // Updated regex to include floats
         return "number";
     }
     else {
@@ -499,7 +513,7 @@ function validateConditionExpression(var1, var2, operator) {
     }
     return `${var1} ${operator} ${var2}`;
 }
-function rangeLoopParser(text) {
+function rangeLoopParser(text, line) {
     //syntax: (number) bar
     //User can use $ to access the current value of the loop
     //user can write like: 10 bar ewrwejwnel 
@@ -509,16 +523,38 @@ function rangeLoopParser(text) {
     const matches = text.match(regex);
     if (matches) {
         const number = matches[1].trim();
-        //if number is number both positive and negative and float
-        if (/^-?\d*(\.\d+)?$/.test(number) === false) {
-            throw new Error(`Eita ki likhso?😑 Invalid value '${number}'|${number}`);
-        }
-        else if (Number(number) < 0) {
-            throw new Error(`Eita ki likhso?😑 Invalid value '${number}'. Range loop must be positive|${number}`);
-        }
         if (matches[2].trim() !== "") {
             throw new Error(`Hae??😑 Invalid token '${matches[2]}'|${matches[2]}`);
         }
+        if (operandType(number) === "number") {
+            //if not positive integer then throw error
+            if (Number(number) < 0) {
+                throw new Error(`Ultapalta value😑 '${number}'. Looping variable always positive number hoy jaan|${number}`);
+            }
+        }
+        else if (operandType(number) === "string") {
+            throw new Error(`String diye loop iterate kora jay na😑 '${number}'. Looping variable always positive number hoy jaan|${number}`);
+        }
+        else {
+            let value = _variableSet.get(number);
+            if (!value) {
+                throw new Error(`${number} paiso koi? ki likhso egula hae?? 😑|${number}`);
+            }
+            else {
+                console.log(typeof value, value);
+                if (typeof value === "number") {
+                    if (value < 0) {
+                        throw new Error(`'${number}' ba ${value} diye loop iterate kora jabe na😑. Looping variable always positive number hoy jaan|${number}`);
+                    }
+                }
+                else {
+                    throw new Error(`'${number}' ba ${value} diye loop iterate kora jabe na😑. Looping variable always positive number hoy jaan|${number}`);
+                }
+            }
+        }
+        const n = Number(number);
+        startBlockStack.push({ blockname: `${n} bar`, line: line });
+        endBlockStack.push({ blockname: `${n} bar`, line: line });
         return `\nfor (let $ = 1; $ <= ${matches[1]}; $++) {`;
     }
     return text;
