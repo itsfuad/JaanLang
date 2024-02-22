@@ -526,7 +526,7 @@ function parseConditional(text: string) {
         if (!match[5]) {
             throw new Error(`Arey jaan😑! last e 'tahole' likha lage after condition expression|${operator}`);
         } else if (match[5] !== "tahole") {
-            throw new Error(`Arey jaan😑! last e 'tahole' likha lage after condition expression. Tumi likhso '${match[5]}'`);
+            throw new Error(`Arey jaan😑! last e 'tahole' likha lage after condition expression. Tumi likhso '${match[5]}'|${match[5]}`);
         }
 
         expression += validateConditionExpression(var1, var2, operator);
