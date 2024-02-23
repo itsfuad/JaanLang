@@ -556,11 +556,15 @@ function rangeLoopParser(text, line) {
             if (operandType(number) === "number") {
                 //if not positive integer then throw error
                 if (Number(number) < 0) {
-                    throw new Error(`Ultapalta value😑 '${number}'. Looping variable always positive number hoy jaan|${number}`);
+                    throw new Error(`Ultapalta value😑 '${number}'. Looping variable always positive integer number hoy jaan|${number}`);
+                }
+                //if not integer then throw error
+                if (!Number.isInteger(Number(number))) {
+                    throw new Error(`Ultapalta value😑 '${number}'. Looping variable always positive integer number hoy jaan|${number}`);
                 }
             }
             else if (operandType(number) === "string") {
-                throw new Error(`String diye loop iterate kora jay na😑 '${number}'. Looping variable always positive number hoy jaan|${number}`);
+                throw new Error(`String diye loop iterate kora jay na😑 '${number}'. Looping variable always positive integer number hoy jaan|${number}`);
             }
             else {
                 let value = _variableSet.get(number);
@@ -571,11 +575,11 @@ function rangeLoopParser(text, line) {
                     //console.log(typeof value, value);
                     if (typeof value === "number") {
                         if (value < 0) {
-                            throw new Error(`'${number}' ba ${value} diye loop iterate kora jabe na😑. Looping variable always positive number hoy jaan|${number}`);
+                            throw new Error(`'${number}' ba ${value} diye loop iterate kora jabe na😑. Looping variable always positive integer number hoy jaan|${number}`);
                         }
                     }
                     else {
-                        throw new Error(`'${number}' ba ${value} diye loop iterate kora jabe na😑. Looping variable always positive number hoy jaan|${number}`);
+                        throw new Error(`'${number}' ba ${value} diye loop iterate kora jabe na😑. Looping variable always positive integer number hoy jaan|${number}`);
                     }
                 }
             }
