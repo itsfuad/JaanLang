@@ -100,7 +100,7 @@ function processFile(filename) {
     // if filetype is not jaan then throw error
     if (!sanitizedPath.endsWith('.jaan')) {
         const endsWith = sanitizedPath.split('.').pop();
-        log(endsWith, endsWith === sanitizedPath);
+        //log(endsWith, endsWith === sanitizedPath);
         if (endsWith === sanitizedPath) {
             sanitizedPath = sanitizedPath + ".jaan";
         }
@@ -117,7 +117,7 @@ function processFile(filename) {
 }
 function readFileData(filename) {
     //read file
-    let filedata = readFileSync(filename, 'utf-8');
+    let filedata = readFileSync(path.resolve(path.normalize(filename)), 'utf-8');
     return filedata;
 }
 runCode(readFileData(processFile(filename)));

@@ -554,7 +554,7 @@ function rangeLoopParser(text, line) {
                 throw new Error(`Hae??😑 Invalid token '${matches[2]}'|${matches[2]}`);
             }
             const type = operandType(number);
-            log(`Type: ${type}`);
+            //log(`Type: ${type}`);
             if (type === "number") {
                 //if not positive integer then throw error
                 if (Number(number) < 0) {
@@ -570,7 +570,7 @@ function rangeLoopParser(text, line) {
             }
             else {
                 let value = _variableSet.get(number);
-                log(`Value: ${value}`);
+                //log(`Value: ${value}`);
                 if (!value) {
                     throw new Error(`${number} er value koi? ki likhso egula hae?? 😑|${number}`);
                 }

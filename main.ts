@@ -131,7 +131,7 @@ function processFile(filename: string) {
 
 function readFileData(filename: string){
     //read file
-    let filedata = readFileSync(filename, 'utf-8');
+    let filedata = readFileSync(path.resolve(path.normalize(filename)), 'utf-8');
 
     return filedata;
 }
