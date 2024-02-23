@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { existsSync, readFileSync, writeFileSync } from 'fs';
+import path from 'path';
 import chalk from 'chalk';
 import { config } from 'dotenv';
 
@@ -101,26 +102,31 @@ function processFile(filename: string) {
         console.error('Error: No files specified');
         process.exit(1);
     }
+
+    //validate and sanitize file path
+    let sanitizedPath = path.resolve(path.normalize(filename));
+
     // filetype: source.jaan or jaan
     // if no filetype then assume it is jaan
     // if filetype is not jaan then throw error
     
-    if (existsSync(filename) === false) {
-        console.error(`Error: File ${filename} not found`);
-        process.exit(1);
-    }
-    
-    if (!filename.endsWith('.jaan')) {
-        const endsWith = filename.split('.').pop();
-        if (!endsWith) {
-            filename = filename + ".jaan";
-        } else {
-            console.error(`Error: Invalid file type: ${filename}`);
+    if (!sanitizedPath.endsWith('.jaan')) {
+        const endsWith = sanitizedPath.split('.').pop();
+        log(endsWith, endsWith === sanitizedPath);
+        if (endsWith === sanitizedPath) {
+            sanitizedPath = sanitizedPath + ".jaan";
+        }else {
+            console.error(`Error: Invalid file type: ${sanitizedPath}`);
             process.exit(1);
         }
+    } 
+    
+    if (existsSync(sanitizedPath) === false) {
+        console.error(`Error: File ${sanitizedPath} not found`);
+        process.exit(1);
     }
 
-    return filename;
+    return sanitizedPath;
 }
 
 function readFileData(filename: string){
