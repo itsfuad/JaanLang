@@ -112,7 +112,7 @@ function processFile(filename: string) {
     
     if (!sanitizedPath.endsWith('.jaan')) {
         const endsWith = sanitizedPath.split('.').pop();
-        log(endsWith, endsWith === sanitizedPath);
+        //log(endsWith, endsWith === sanitizedPath);
         if (endsWith === sanitizedPath) {
             sanitizedPath = sanitizedPath + ".jaan";
         }else {

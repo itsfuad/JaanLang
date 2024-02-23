@@ -633,7 +633,7 @@ function rangeLoopParser(text: string, line: number) {
 
             const type = operandType(number);
 
-            log(`Type: ${type}`);
+            //log(`Type: ${type}`);
     
             if (type === "number") {
                 //if not positive integer then throw error
@@ -650,7 +650,7 @@ function rangeLoopParser(text: string, line: number) {
     
                 let value = _variableSet.get(number);
 
-                log(`Value: ${value}`);
+                //log(`Value: ${value}`);
     
                 if (!value) {
                     throw new Error(`${number} er value koi? ki likhso egula hae?? 😑|${number}`);
