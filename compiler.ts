@@ -630,32 +630,42 @@ function rangeLoopParser(text: string, line: number) {
             if (matches[2].trim() !== "") {
                 throw new Error(`Hae??😑 Invalid token '${matches[2]}'|${matches[2]}`);
             }
+
+            const type = operandType(number);
+
+            log(`Type: ${type}`);
     
-            if (operandType(number) === "number") {
+            if (type === "number") {
                 //if not positive integer then throw error
                 if (Number(number) < 0) {
-                    throw new Error(`Ultapalta value😑 '${number}'. Looping variable always positive integer number hoy jaan|${number}`);
+                    throw new Error(`Negative number diye loop kora jay na😑 '${number}'. Looping variable always positive integer number hoy jaan|${number}`);
                 }
                 //if not integer then throw error
                 if (!Number.isInteger(Number(number))) {
                     throw new Error(`Ultapalta value😑 '${number}'. Looping variable always positive integer number hoy jaan|${number}`);
                 }
-            } else if (operandType(number) === "string") {
+            } else if (type === "string") {
                 throw new Error(`String diye loop iterate kora jay na😑 '${number}'. Looping variable always positive integer number hoy jaan|${number}`);
             } else {
     
                 let value = _variableSet.get(number);
+
+                log(`Value: ${value}`);
     
                 if (!value) {
-                    throw new Error(`${number} paiso koi? ki likhso egula hae?? 😑|${number}`);
+                    throw new Error(`${number} er value koi? ki likhso egula hae?? 😑|${number}`);
                 } else {
                     //console.log(typeof value, value);
                     if (typeof value === "number") {
-                        if (value < 0) {
-                            throw new Error(`'${number}' ba ${value} diye loop iterate kora jabe na😑. Looping variable always positive integer number hoy jaan|${number}`);
+                        if (Number(value) < 0) {
+                            throw new Error(`'${number}' er value '${value}'. Negative value diye loop iterate kora jay na😑. Looping variable always positive integer number hoy jaan|${number}`);
+                        }
+                        //if not integer then throw error
+                        if (!Number.isInteger(Number(value))) {
+                            throw new Error(`'${number}' er value '${value}'. Eta diye loop iterate kora jay na😑. Looping variable always positive integer number hoy jaan|${number}`);
                         }
                     } else {
-                        throw new Error(`'${number}' ba ${value} diye loop iterate kora jabe na😑. Looping variable always positive integer number hoy jaan|${number}`);
+                        throw new Error(`'${number}' ba '${value}' diye loop iterate kora jay na😑. Looping variable always positive integer number hoy jaan|${number}`);
                     }
                 }
             }
