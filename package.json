@@ -28,6 +28,6 @@
   },
   "dependencies": {
     "chalk": "^5.3.0",
-    "dotenv": "^16.4.1"
+    "dotenv": "^16.4.2"
   }
 }
