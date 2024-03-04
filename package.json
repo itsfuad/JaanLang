@@ -8,6 +8,11 @@
   "bin": {
     "jaan": "./main.js"
   },
+  "engines": {
+    "node": ">=16.13.0",
+    "pnpm": ">=3",
+    "npm": ">=8"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "jaan": "node ./main.js"
