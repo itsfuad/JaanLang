@@ -1,0 +1,4 @@
+{
+    "deno.enable": false,
+    "deepscan.enable": true
+}

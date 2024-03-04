@@ -3,15 +3,12 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import chalk from 'chalk';
-import { config } from 'dotenv';
-
-config();
 
 import { compile, log, runCode } from './compiler.js';
 
-//get version from package.json
-const version = process.env.npm_package_version || 'Development';
-
+export function getVersion() {
+    return "1.0.22";
+}
 
 function howToUse() {
     log(chalk.yellowBright('\nJaanLang\n'));
@@ -64,9 +61,10 @@ try{
                 case '--doc':
                 case '-d':
                     howToUse();
+                    break;
                 case '--version':
                 case '-v':
-                    console.log(`JaanLang v${version}`);
+                    console.log(`JaanLang v${getVersion()}`);
                     break;
                 case '--compile':
                 case '-c':
