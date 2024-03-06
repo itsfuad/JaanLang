@@ -8,7 +8,7 @@
   "bin": {
     "jaan": "./main.js"
   },
-  "$schema": "https://schemastore.org/package",
+  "schema": "https://schemastore.org/package",
   "engines": {
     "node": ">=16.13.0",
     "pnpm": ">=3",
