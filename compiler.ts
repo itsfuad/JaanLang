@@ -275,10 +275,8 @@ export function compile(code: string, terminal = true) {
                         
                         const seconds = validateNumber(match[1].trim(), 'time count');
 
-                        if (sleepUsed === false) {
-                            output = sleepCode + output;
-                            sleepUsed = true;
-                        }
+                        sleepUsed = true;
+
                         output += `\nawait _jaanLangSleep(${seconds});\n`;
                     }
                 } else {
@@ -324,6 +322,9 @@ export function compile(code: string, terminal = true) {
 
         //wrap the code in a async function
         output = `(async () => {${output}\n})();`;
+        if (sleepUsed){
+            output = sleepCode + output;
+        }
     
         terminal ? log(chalk.greenBright('Compiled successfully')) : null;
         return output;

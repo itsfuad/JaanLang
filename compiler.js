@@ -229,10 +229,7 @@ export function compile(code, terminal = true) {
                             throw new Error(`Hae??😑 Invalid token '${match[2]}'|${match[2]}`);
                         }
                         const seconds = validateNumber(match[1].trim(), 'time count');
-                        if (sleepUsed === false) {
-                            output = sleepCode + output;
-                            sleepUsed = true;
-                        }
+                        sleepUsed = true;
                         output += `\nawait _jaanLangSleep(${seconds});\n`;
                     }
                 }
@@ -278,6 +275,9 @@ export function compile(code, terminal = true) {
         }
         //wrap the code in a async function
         output = `(async () => {${output}\n})();`;
+        if (sleepUsed) {
+            output = sleepCode + output;
+        }
         terminal ? log(chalk.greenBright('Compiled successfully')) : null;
         return output;
     }
