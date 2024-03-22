@@ -5,6 +5,13 @@ export const log = console.log;
 const _variableSet = new Map<string, string | number | undefined>();
 _variableSet.set("$", 1);
 
+let sleepUsed: boolean = false;
+
+const sleepCode = `
+async function _jaanLangSleep(seconds) {
+    return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+}`;
+
 let lines: string[] = [];
 
 const keywordsControl = {
@@ -69,6 +76,8 @@ let endBlockStack: Array<{ blockname: BlockType, line: number }> = [];
 
 export function compile(code: string, terminal = true) {
 
+    let output = "";
+
     try{
         startBlockStack = new Array<{ blockname: BlockType, line: number }>();
         endBlockStack = new Array<{ blockname: BlockType, line: number }>();
@@ -98,7 +107,6 @@ export function compile(code: string, terminal = true) {
         lines.shift();
         lines.pop();
     
-        let output = "";
     
         //console.log(lines.length + " lines");
     
@@ -145,7 +153,7 @@ export function compile(code: string, terminal = true) {
                     //use stack to check if nahole is used with jodi. Nahole is "else if" in bangla
                     if (startBlockStack.length === 0) {
                         throw new Error(`'nahole jodi' er age kothao 'jodi' ba nahole [..] jodi' use korso?😒|nahole jodi`);
-                    } 6
+                    }
                     if (startBlockStack.at(-1)?.blockname === "jodi" || startBlockStack.at(-1)?.blockname === "nahole jodi") {
                         output += "} else if (" + parseConditional(lines[i].replace("nahole", "").trim()) + ") {";
                         startBlockStack.pop();
@@ -256,8 +264,23 @@ export function compile(code: string, terminal = true) {
                     output += `\nlet ${variableDeclarationParts[0]} = ${value};`;
                     _variableSet.set(variableDeclarationParts[0], value);
     
-                } else if (/(.*) bar\s*(.*)/.test(lines[i])) {
+                } else if (/(.*)\s*bar\s*(.*)/.test(lines[i])) {
                     output += rangeLoopParser(lines[i], i);
+                } else if (/(.*)\s*sec wait koro\s*(.*)/.test(lines[i])){
+                    const match = lines[i].match(/(.*) sec wait koro\s*(.*)/);
+                    if (match){
+                        if (match[2]) {
+                            throw new Error(`Hae??😑 Invalid token '${match[2]}'|${match[2]}`);
+                        }
+                        
+                        const seconds = validateNumber(match[1].trim(), 'time count');
+
+                        if (sleepUsed === false) {
+                            output = sleepCode + output;
+                            sleepUsed = true;
+                        }
+                        output += `\nawait _jaanLangSleep(${seconds});\n`;
+                    }
                 } else {
                     const token = lines[i].trim().split(/\s+/)[0];
                     //log(token + " found");
@@ -298,6 +321,9 @@ export function compile(code: string, terminal = true) {
                 throw new Error(`Error:  Kono ekta block end koro nai😑.\nCompilation failed🥺😭\n`);
             }
         }
+
+        //wrap the code in a async function
+        output = `(async () => {${output}\n})();`;
     
         terminal ? log(chalk.greenBright('Compiled successfully')) : null;
         return output;
@@ -402,6 +428,7 @@ console.log(isValidExpression(`2 + 4 * sd`)); //false Unexpected token '='
 
 
 function validateOperand(value: string) {
+    value = value.trim();
     try {
         return !!operandType(value);
     } catch (e: any) {
@@ -412,6 +439,7 @@ function validateOperand(value: string) {
 function operandType(value: string) {
     try {
         //returns "string", "number", "variable"
+        value = value.trim();
         if (/["']/.test(value)) {
             if (isValidString(value) === false) {
                 //remove starting or trailing " or '
@@ -621,7 +649,7 @@ function rangeLoopParser(text: string, line: number) {
         //user can write like: 10 bar ewrwejwnel 
         //any text after 'bar' will be considered as syntax error
         //check if any text after bar
-        const regex = /(.*) bar\s*(.*)/;
+        const regex = /(.*)\s*bar\s*(.*)/;
         const matches = text.match(regex);
         if (matches) {
     
@@ -631,58 +659,67 @@ function rangeLoopParser(text: string, line: number) {
                 throw new Error(`Hae??😑 Invalid token '${matches[2]}'|${matches[2]}`);
             }
 
-            const type = operandType(number);
-
-            //log(`Type: ${type}`);
-    
-            if (type === "number") {
-                //if not positive integer then throw error
-                if (Number(number) < 0) {
-                    throw new Error(`Negative number diye loop kora jay na😑 '${number}'. Looping variable always positive integer number hoy jaan|${number}`);
-                }
-                //if not integer then throw error
-                if (!Number.isInteger(Number(number))) {
-                    throw new Error(`Ultapalta value😑 '${number}'. Looping variable always positive integer number hoy jaan|${number}`);
-                }
-            } else if (type === "string") {
-                throw new Error(`String diye loop iterate kora jay na😑 '${number}'. Looping variable always positive integer number hoy jaan|${number}`);
-            } else {
-    
-                let value = _variableSet.get(number);
-
-                //log(`Value: ${value}`);
-    
-                if (!value) {
-                    throw new Error(`${number} er value koi? ki likhso egula hae?? 😑|${number}`);
-                } else {
-                    //console.log(typeof value, value);
-                    if (typeof value === "number") {
-                        if (Number(value) < 0) {
-                            throw new Error(`'${number}' er value '${value}'. Negative value diye loop iterate kora jay na😑. Looping variable always positive integer number hoy jaan|${number}`);
-                        }
-                        //if not integer then throw error
-                        if (!Number.isInteger(Number(value))) {
-                            throw new Error(`'${number}' er value '${value}'. Eta diye loop iterate kora jay na😑. Looping variable always positive integer number hoy jaan|${number}`);
-                        }
-                    } else {
-                        throw new Error(`'${number}' ba '${value}' diye loop iterate kora jay na😑. Looping variable always positive integer number hoy jaan|${number}`);
-                    }
-                }
-            }
-    
-            const n = Number(number);
+            const n = validateNumber(number, 'loop');
     
             startBlockStack.push({ blockname: `${n} bar`, line: line });
             endBlockStack.push({ blockname: `${n} bar`, line: line });
     
-    
-            return `\nfor (let $ = 1; $ <= ${matches[1]}; $++) {`;
+            return `\nfor (let $ = 1; $ <= ${number}; $++) {`;
         }
     
         return text;
     } catch (e: any) {
         throw new Error(e.message);
     }
+}
+
+function sentenceCase(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+
+function validateNumber(number: string, usedFor: 'loop' | 'time count'){
+    
+    const type = operandType(number.trim());
+
+    const integer = usedFor === 'loop';
+
+    if (type === "number") {
+        //if not positive integer then throw error
+        if (integer && Number(number) < 0) {
+            throw new Error(`Negative number diso kno?😑 '${number}'. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
+        }
+        //if not integer then throw error
+        if (integer && !Number.isInteger(Number(number))) {
+            throw new Error(`Ultapalta value diso kno?😑 '${number}'. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
+        }
+    } else if (type === "string") {
+        throw new Error(`String diso kon dukkhe?😑 '${number}'. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
+    } else {
+    
+        let value = _variableSet.get(number);
+    
+        if (!value) {
+            throw new Error(`${number} er value koi? ki likhso egula hae?? 😑|${number}`);
+        } else {
+            //console.log(typeof value, value);
+            if (typeof value === "number") {
+                if (integer && Number(value) < 0) {
+                    throw new Error(`'${number}' er value '${value}'. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
+                }
+                //if not integer then throw error
+                if (integer && !Number.isInteger(Number(value))) {
+                    throw new Error(`'${number}' er value '${value}'. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
+                }
+            } else {
+                throw new Error(`'${number}' ba '${value}' diye ${usedFor} kora jay na😑. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
+            }
+        }
+
+        return value;
+    }
+
+    return Number(number);
 }
 
 const code = `

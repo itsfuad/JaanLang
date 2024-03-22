@@ -39,7 +39,13 @@ function howToUse() {
     log(chalk.greenBright('\ttheke beshi -> >'));
     log(chalk.greenBright('\ttheke kom -> <'));
     log(chalk.greenBright('\ttheke beshi ba soman -> >='));
-    log(chalk.greenBright('\ttheke kom ba soman -> <='));
+    log(chalk.greenBright('\ttheke kom ba soman -> <=\n'));
+    log(chalk.blueBright('Logical Operators'));
+    log(chalk.greenBright('\tand -> &&'));
+    log(chalk.greenBright('\tor -> ||'));
+    log(chalk.blueBright('Wait for N seconds'));
+    log(chalk.greenBright('\t<number> or <variable> sec wait koro\n'));
+
 }
 
 function showHelp() {
