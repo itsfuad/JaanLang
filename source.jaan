@@ -17,4 +17,6 @@ hi jaan
     bolo "Sorry " + $
   huh
 
+  bolo "I love you so much!"
+
 bye jaan
