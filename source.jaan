@@ -13,7 +13,7 @@ hi jaan
 
   #say sorry 5 times. '$' is a counter variable
   3 bar
-    1 sec wait koro
+    1 min wait koro
     bolo "Sorry " + $
   huh
 

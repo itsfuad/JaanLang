@@ -8,8 +8,8 @@ _variableSet.set("$", 1);
 let sleepUsed: boolean = false;
 
 const sleepCode = `
-async function _jaanLangSleep(seconds) {
-    return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+async function _jaanLangSleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }`;
 
 let lines: string[] = [];
@@ -266,18 +266,31 @@ export function compile(code: string, terminal = true) {
     
                 } else if (/(.*)\s*bar\s*(.*)/.test(lines[i])) {
                     output += rangeLoopParser(lines[i], i);
-                } else if (/(.*)\s*sec wait koro\s*(.*)/.test(lines[i])){
-                    const match = lines[i].match(/(.*) sec wait koro\s*(.*)/);
+                } else if (/(\S*)\s*(\S*)\s*wait koro\s*(.*)/.test(lines[i])){
+                    const match = lines[i].match(/(\S*)\s*(\S*)\s*wait koro\s*(.*)/);
                     if (match){
-                        if (match[2]) {
+
+                        log(match);
+
+                        if (!match[2]){
+                            throw new Error(`Time unit koi?😑|wait`);
+                        }
+
+                        if (!["min", "sec"].includes(match[2].trim())){
+                            throw new Error(`Invalid time unit😑 '${match[2]}'. Use 'sec' or 'min' as Unit|${match[2]}`);
+                        }
+
+                        if (match[3]) {
                             throw new Error(`Hae??😑 Invalid token '${match[2]}'|${match[2]}`);
                         }
                         
-                        const seconds = validateNumber(match[1].trim(), 'time count');
+                        const time = validateNumber(match[1].trim(), 'time count');
 
                         sleepUsed = true;
 
-                        output += `\nawait _jaanLangSleep(${seconds});\n`;
+                        const ms = match[2].trim() === "sec" ? time * 1000 : time * 1000 * 60;
+
+                        output += `\nawait _jaanLangSleep(${ms});\n`;
                     }
                 } else {
                     const token = lines[i].trim().split(/\s+/)[0];
@@ -687,15 +700,15 @@ function validateNumber(number: string, usedFor: 'loop' | 'time count'){
 
     if (type === "number") {
         //if not positive integer then throw error
-        if (integer && Number(number) < 0) {
-            throw new Error(`Negative number diso kno?😑 '${number}'. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
+        if (Number(number) < 0) {
+            throw new Error(`Negative number diso kno?😑 '${number}'. ${sentenceCase(usedFor)}ing variable always positive${ integer? " integer" : ""} number hoy jaan|${number}`);
         }
         //if not integer then throw error
         if (integer && !Number.isInteger(Number(number))) {
             throw new Error(`Ultapalta value diso kno?😑 '${number}'. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
         }
     } else if (type === "string") {
-        throw new Error(`String diso kon dukkhe?😑 '${number}'. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
+        throw new Error(`String diso kon dukkhe?😑 '${number}'. ${sentenceCase(usedFor)}ing variable always positive${ integer? " integer" : ""} number hoy jaan|${number}`);
     } else {
     
         let value = _variableSet.get(number);
@@ -705,15 +718,15 @@ function validateNumber(number: string, usedFor: 'loop' | 'time count'){
         } else {
             //console.log(typeof value, value);
             if (typeof value === "number") {
-                if (integer && Number(value) < 0) {
-                    throw new Error(`'${number}' er value '${value}'. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
+                if (Number(value) < 0) {
+                    throw new Error(`'${number}' er value '${value}'. ${sentenceCase(usedFor)}ing variable always positive${ integer? " integer" : ""} number hoy jaan|${number}`);
                 }
                 //if not integer then throw error
                 if (integer && !Number.isInteger(Number(value))) {
                     throw new Error(`'${number}' er value '${value}'. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
                 }
             } else {
-                throw new Error(`'${number}' ba '${value}' diye ${usedFor} kora jay na😑. ${sentenceCase(usedFor)}ing variable always positive integer number hoy jaan|${number}`);
+                throw new Error(`'${number}' ba '${value}' diye ${usedFor} kora jay na😑. ${sentenceCase(usedFor)}ing variable always positive${ integer? " integer" : ""} number hoy jaan|${number}`);
             }
         }
 
