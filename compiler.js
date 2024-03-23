@@ -282,7 +282,7 @@ export function compile(code, terminal = true) {
             }
         }
         //wrap the code in a async function
-        output = `(async () => {${output}\n})();`;
+        output = `(async () => {${output}\n\n/*[END_CODE]*/})();`;
         if (sleepUsed) {
             output = sleepCode + output;
         }
