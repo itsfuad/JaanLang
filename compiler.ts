@@ -270,7 +270,7 @@ export function compile(code: string, terminal = true) {
                     const match = lines[i].match(/(\S*)\s*(\S*)\s*wait koro\s*(.*)/);
                     if (match){
 
-                        log(match);
+                        //log(match);
 
                         if (!match[2]){
                             throw new Error(`Time unit koi?😑|wait`);
