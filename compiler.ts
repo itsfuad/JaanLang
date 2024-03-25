@@ -2,7 +2,7 @@ import chalk from 'chalk';
 
 export const log = console.log;
 
-const _variableSet: Map<string, string | number | undefined> = new Map();
+let _variableSet: Map<string, string | number | undefined> = new Map();
 
 let sleepUsed: boolean = false;
 
@@ -82,6 +82,7 @@ export function compile(code: string, terminal = true) {
         //clear all previous compilation metadata
         let output = "";
         _variableSet.clear();
+        _variableSet = new Map();
         startBlockStack = new Array<{ blockname: BlockType, line: number }>();
         endBlockStack = new Array<{ blockname: BlockType, line: number }>();
         sleepUsed = false;

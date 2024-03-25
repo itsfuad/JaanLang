@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 export const log = console.log;
-const _variableSet = new Map();
+let _variableSet = new Map();
 let sleepUsed = false;
 const sleepCode = `
 async function _jaanLangSleep(ms) {
@@ -57,6 +57,7 @@ export function compile(code, terminal = true) {
         //clear all previous compilation metadata
         let output = "";
         _variableSet.clear();
+        _variableSet = new Map();
         startBlockStack = new Array();
         endBlockStack = new Array();
         sleepUsed = false;
