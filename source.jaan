@@ -11,29 +11,11 @@ hi jaan
     bolo "Breakup!!"
   huh
 
-  dhoro d
-
-  #say Hi 5 times.
-  5 bar
-    bolo "Hi"
-  huh
-
-  #Use a loop counter with '<variable> dhore'. Here the loop counter is 'i'.
-  3 bar i dhore
-    bolo "Sorry " + i 
-  huh
-
-  #Add delay
-  2 sec wait koro
-    bolo "I love you so much!"
-
-  Specify the delay in number with unit of 'sec' for seconds, 'min' for minutes. Use 'wait koro' to wait for the specified time.
-
-  #Using inside a loop
-  3 bar
+  #say sorry 5 times. '$' is a counter variable
+  3 bar x dhore
     1 sec wait koro
-    bolo "Hi jaan"
-
+    bolo "Sorry " + x
+  huh
 
   bolo "I love you so much!"
 
