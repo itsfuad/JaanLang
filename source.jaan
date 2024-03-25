@@ -11,10 +11,12 @@ hi jaan
     bolo "Breakup!!"
   huh
 
+  dhoro d
+
   #say sorry 5 times. '$' is a counter variable
-  3 bar
+  3 bar i dhore
     1 sec wait koro
-    bolo "Sorry " + $
+    bolo "Sorry " + i
   huh
 
   bolo "I love you so much!"

@@ -1,7 +1,6 @@
 import chalk from 'chalk';
 export const log = console.log;
 const _variableSet = new Map();
-_variableSet.set("$", 1);
 let sleepUsed = false;
 const sleepCode = `
 async function _jaanLangSleep(ms) {
@@ -201,6 +200,10 @@ export function compile(code, terminal = true) {
                         throw new Error(`Ajaira token😑 after ${variableDeclarationParts[1]}. Found '${variableDeclarationParts[2]}'|${variableDeclarationParts[2]}`);
                     }
                     validateVariableName(variableDeclarationParts[0]);
+                    //if variable is already declared then throw error
+                    if (_variableSet.has(variableDeclarationParts[0])) {
+                        throw new Error(`'${variableDeclarationParts[0]} to ekbar declare korso. Onno nam dao😑'|${variableDeclarationParts[0]}`);
+                    }
                     let value = variableDeclarationParts[1];
                     if (value) {
                         const type = operandType(value);
@@ -219,7 +222,7 @@ export function compile(code, terminal = true) {
                     output += `\nlet ${variableDeclarationParts[0]} = ${value};`;
                     _variableSet.set(variableDeclarationParts[0], value);
                 }
-                else if (/(.*)\s*bar\s*(.*)/.test(lines[i])) {
+                else if (/(.*)\s*bar\s*(\S*)\s*(.*)/.test(lines[i])) {
                     output += rangeLoopParser(lines[i], i);
                 }
                 else if (/(\S*)\s*(\S*)\s*wait koro\s*(.*)/.test(lines[i])) {
@@ -258,9 +261,18 @@ export function compile(code, terminal = true) {
                 const msg = error.split("|")[0];
                 let token = error.split("|")[1];
                 if (token) {
-                    annotatedLine += " ".repeat(lines[i].trim().indexOf(token));
-                    for (let j = 0; j < token.length; j++) {
-                        annotatedLine += terminal ? chalk.yellowBright("~") : "~";
+                    if (token.startsWith("#")) {
+                        if (token.includes("end")) {
+                            //show the annotation at the end of the line
+                            annotatedLine += " ".repeat(lines[i].trim().length);
+                            annotatedLine += terminal ? chalk.yellowBright("^") : "^";
+                        }
+                    }
+                    else if (lines[i].trim().includes(token)) {
+                        annotatedLine += " ".repeat(lines[i].trim().indexOf(token));
+                        for (let j = 0; j < token.length; j++) {
+                            annotatedLine += terminal ? chalk.yellowBright("~") : "~";
+                        }
                     }
                 }
                 //console.log(startBlockStack);
@@ -414,9 +426,9 @@ function operandType(value) {
 }
 function validateVariableName(variableName) {
     try {
-        //A variable name must start with a letter, underscore or dollar sign. Subsequent characters can also be digits (0-9).
-        if (!/^[a-zA-Z_$][a-zA-Z_0-9]*$/.test(variableName)) {
-            throw new Error(`Arey jaan😑! Variable name letter, underscore or dollar sign diye likha jay. '${variableName}' abar ki?|${variableName}`);
+        //A variable name must start with a letter, underscore sign. Subsequent characters can also be digits (0-9).
+        if (!/^[a-zA-Z_][a-zA-Z_0-9]*$/.test(variableName)) {
+            throw new Error(`Arey jaan😑! Variable name letter, underscore diye likha jay. '${variableName}' abar ki?|${variableName}`);
         }
         //check if variable name is a reserved keyword
         if (keywords[variableName]) {
@@ -576,17 +588,33 @@ function rangeLoopParser(text, line) {
         //user can write like: 10 bar ewrwejwnel 
         //any text after 'bar' will be considered as syntax error
         //check if any text after bar
-        const regex = /(.*)\s*bar\s*(.*)/;
+        const regex = /(.*)\s*bar\s*(\S*)\s*(.*)/;
         const matches = text.match(regex);
         if (matches) {
             const number = matches[1].trim();
-            if (matches[2].trim() !== "") {
-                throw new Error(`Hae??😑 Invalid token '${matches[2]}'|${matches[2]}`);
-            }
             const n = validateNumber(number, 'loop');
+            const hasLoopingVariable = matches[2];
+            if (hasLoopingVariable) {
+                log(hasLoopingVariable);
+                validateVariableName(hasLoopingVariable);
+                if (_variableSet.has(hasLoopingVariable)) {
+                    throw new Error(`'${hasLoopingVariable}' already declare kora ase. Onno nam dao 😑|${hasLoopingVariable}`);
+                }
+                log(matches[3]);
+                if (matches[3].trim() === "") {
+                    log(1);
+                    throw new Error(`Expected 'dhore' after ${hasLoopingVariable}|#end`);
+                }
+                else if (matches[3].trim() !== "dhore") {
+                    log(2);
+                    throw new Error(`Expected 'dhore' after ${hasLoopingVariable}. Found '${matches[3]}'|${matches[3]}`);
+                }
+                _variableSet.set(hasLoopingVariable, 0);
+            }
+            const loopVariable = hasLoopingVariable ? hasLoopingVariable : "$";
             startBlockStack.push({ blockname: `${n} bar`, line: line });
             endBlockStack.push({ blockname: `${n} bar`, line: line });
-            return `\nfor (let $ = 1; $ <= ${number}; $++) {`;
+            return `\nfor (let ${loopVariable} = 1; ${loopVariable} <= ${number}; ${loopVariable}++) {`;
         }
         return text;
     }
