@@ -595,18 +595,18 @@ function rangeLoopParser(text, line) {
             const n = validateNumber(number, 'loop');
             const hasLoopingVariable = matches[2];
             if (hasLoopingVariable) {
-                log(hasLoopingVariable);
+                //log(hasLoopingVariable);
                 validateVariableName(hasLoopingVariable);
                 if (_variableSet.has(hasLoopingVariable)) {
                     throw new Error(`'${hasLoopingVariable}' already declare kora ase. Onno nam dao 😑|${hasLoopingVariable}`);
                 }
-                log(matches[3]);
+                //log(matches[3]);
                 if (matches[3].trim() === "") {
-                    log(1);
+                    //log(1);
                     throw new Error(`Expected 'dhore' after ${hasLoopingVariable}|#end`);
                 }
                 else if (matches[3].trim() !== "dhore") {
-                    log(2);
+                    //log(2);
                     throw new Error(`Expected 'dhore' after ${hasLoopingVariable}. Found '${matches[3]}'|${matches[3]}`);
                 }
                 _variableSet.set(hasLoopingVariable, 0);
