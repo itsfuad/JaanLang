@@ -53,10 +53,13 @@ let startBlockStack = [];
 let endBlockStack = [];
 export function compile(code, terminal = true) {
     var _a, _b, _c, _d, _e, _f;
-    let output = "";
     try {
+        //clear all previous compilation metadata
+        let output = "";
+        _variableSet.clear();
         startBlockStack = new Array();
         endBlockStack = new Array();
+        sleepUsed = false;
         let i = 0;
         terminal ? log(chalk.yellowBright('Compiling...')) : null;
         //remove starting and trailing spaces

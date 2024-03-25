@@ -75,11 +75,16 @@ let endBlockStack: Array<{ blockname: BlockType, line: number }> = [];
 
 export function compile(code: string, terminal = true) {
 
-    let output = "";
-
+    
+    
     try{
+
+        //clear all previous compilation metadata
+        let output = "";
+        _variableSet.clear();
         startBlockStack = new Array<{ blockname: BlockType, line: number }>();
         endBlockStack = new Array<{ blockname: BlockType, line: number }>();
+        sleepUsed = false;
 
         let i = 0;
     
